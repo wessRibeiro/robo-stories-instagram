@@ -34,6 +34,7 @@ class GetStories extends Command
     protected $endPointApi = 'api.storiesig.com/stories/';
     protected $_guzzle;
     protected $_carbon;
+    protected $progressBar;
 
     /**
      * Create a new command instance.
