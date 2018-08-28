@@ -31,9 +31,10 @@ class GetStories extends Command
      */
     protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
-    protected $endPointApi = 'api.storiesig.com/stories/';
+    protected $endPointApi = 'http://api.storiesig.com/stories/';
     protected $_guzzle;
     protected $_carbon;
+    protected $columns;
     protected $progressBar;
 
     /**
@@ -45,11 +46,7 @@ class GetStories extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-        //barra de progresso
-        $progressBar = $this->output->createProgressBar(count($influencers));
-        $progressBar->setFormat('verbose');
-        $progressBar->setMaxSteps(count($influencers));
-        $progressBar->setEmptyBarCharacter(' ');
+
         parent::__construct();
     }
 
@@ -71,20 +68,71 @@ class GetStories extends Command
                                               WHERE
                                                 ativo = 1
                                              ');
-
+            //barra de progresso
+            $progressBar = $this->output->createProgressBar(count($influencers));
+            $progressBar->setFormat('verbose');
+            $progressBar->setMaxSteps(count($influencers));
+            $progressBar->setEmptyBarCharacter(' ');
             foreach ($influencers as $influencer){
+                $salvarAlteracao = false;
                 //avançando a process bar
                 $this->info("\niniciando processo para o influenciador:\nNome: ".$influencer->nome);
                 //consumindo api
                 $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
                 $response = $this->_guzzle->get($this->endPointApi.$influencer->instagram);
-                dd($response);
-                $progressBar->advance();
-                $this->info("\n");
+                $response = json_decode($response->getBody() , true );
+                //verificando se é user privado
+                if(!$response['user']['is_private']){
+                    $this->info('Usuario com visibilidade publica.');
+                    //verificando se alguma informação esta desatualizada
+                    #nome
+                    if (strrpos($influencer->nome, $response['user']['full_name']) === false) {
+                        $this->error('> Nome diferente do Instagram, estamos atualizando.');
+                        $results = DB::update("UPDATE 
+                                                        Influencers                                               
+                                                      SET
+                                                        nome      = '{$response['user']['full_name']}'
+                                                      WHERE 
+                                                        instagram = '{$influencer->instagram}' 
+                                                        ");
+                    }
+                    #img perfil
+                    if (strrpos($influencer->img, $response['user']['profile_pic_url']) === false) {
+                        $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
+                        $influencer->img  = $response['user']['profile_pic_url'];
+                        $results = DB::update("UPDATE 
+                                                        Influencers 
+                                                      SET
+                                                        img       = '{$response['user']['profile_pic_url']}'
+                                                      WHERE 
+                                                        instagram = '{$influencer->instagram}'                                                  
+                                                      ");
+                    }
+                    $progressBar->advance();
+                    $this->info("\n\n");
+                }else{
+                    $this->error('Usuario com visibilidade privada.');
+                    continue;
+                }
             }
+        }catch (\GuzzleHttp\Exception\ClientException $ex){
+            $responseBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $response = json_decode($responseBodyAsString);
+            if( is_object($response)) {
+                $response = (array)$response;
+            }
+            $this->error($response);
+            $this->info("\nEsperando 1 min para requisitar novamente...");
         }catch (Exception $ex){
-            $this->error($ex->getMessage());
+
+            $responseBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $response = json_decode($responseBodyAsString);
+            if( is_object($response)) {
+                $response = (array)$response;
+            }
+            $this->error($response);
             exit();
+
         }finally{
             //finalizando process bar
             $progressBar->finish();
