@@ -45,6 +45,11 @@ class GetStories extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
+        //barra de progresso
+        $progressBar = $this->output->createProgressBar(count($influencers));
+        $progressBar->setFormat('verbose');
+        $progressBar->setMaxSteps(count($influencers));
+        $progressBar->setEmptyBarCharacter(' ');
         parent::__construct();
     }
 
@@ -66,11 +71,7 @@ class GetStories extends Command
                                               WHERE
                                                 ativo = 1
                                              ');
-            //barra de progresso
-            $progressBar = $this->output->createProgressBar(count($influencers));
-            $progressBar->setFormat('verbose');
-            $progressBar->setMaxSteps(count($influencers));
-            $progressBar->setEmptyBarCharacter(' ');
+
             foreach ($influencers as $influencer){
                 //avançando a process bar
                 $this->info("\niniciando processo para o influenciador:\nNome: ".$influencer->nome);
