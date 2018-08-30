@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class GetStories extends Command
 {
@@ -32,10 +33,11 @@ class GetStories extends Command
     protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
     protected $endPointApi = 'http://api.storiesig.com/stories/';
+    protected $pathS3      = 'Stories/';
     protected $_guzzle;
     protected $_carbon;
-    protected $columns;
-    protected $progressBar;
+    protected $_progressBar;
+    protected $temHashtagPrograma;
 
     /**
      * Create a new command instance.
@@ -58,84 +60,240 @@ class GetStories extends Command
     public function handle()
     {
         try {
+
             $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
             Log::info($this->signature, ['Inicio' => $start]);
             $this->info($start."\n");
-            $influencers = DB::select(' SELECT 
-                                                * 
-                                              FROM 
-                                                Influencers 
+            /*
+             * @TODO relacionar foreach de programas com conexão
+             * */
+            $programs = DB::connection('louderhub')
+                             ->select("SELECT
+                                                *
+                                              FROM
+                                                programs
                                               WHERE
-                                                ativo = 1
-                                             ');
-            //barra de progresso
-            $progressBar = $this->output->createProgressBar(count($influencers));
-            $progressBar->setFormat('verbose');
-            $progressBar->setMaxSteps(count($influencers));
-            $progressBar->setEmptyBarCharacter(' ');
-            foreach ($influencers as $influencer){
-                $salvarAlteracao = false;
-                //avançando a process bar
-                $this->info("\niniciando processo para o influenciador:\nNome: ".$influencer->nome);
-                //consumindo api
-                $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
-                $response = $this->_guzzle->get($this->endPointApi.$influencer->instagram);
-                $response = json_decode($response->getBody() , true );
-                //verificando se é user privado
-                if(!$response['user']['is_private']){
-                    $this->info('Usuario com visibilidade publica.');
-                    //verificando se alguma informação esta desatualizada
-                    #nome
-                    if (strrpos($influencer->nome, $response['user']['full_name']) === false) {
-                        $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                        $results = DB::update("UPDATE 
-                                                        Influencers                                               
-                                                      SET
-                                                        nome      = '{$response['user']['full_name']}'
-                                                      WHERE 
-                                                        instagram = '{$influencer->instagram}' 
-                                                        ");
-                    }
-                    #img perfil
-                    if (strrpos($influencer->img, $response['user']['profile_pic_url']) === false) {
-                        $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                        $influencer->img  = $response['user']['profile_pic_url'];
-                        $results = DB::update("UPDATE 
-                                                        Influencers 
-                                                      SET
-                                                        img       = '{$response['user']['profile_pic_url']}'
-                                                      WHERE 
-                                                        instagram = '{$influencer->instagram}'                                                  
-                                                      ");
-                    }
-                    $progressBar->advance();
-                    $this->info("\n\n");
-                }else{
-                    $this->error('Usuario com visibilidade privada.');
-                    continue;
-                }
-            }
-        }catch (\GuzzleHttp\Exception\ClientException $ex){
-            $responseBodyAsString = $ex->getResponse()->getBody()->getContents();
-            $response = json_decode($responseBodyAsString);
-            if( is_object($response)) {
-                $response = (array)$response;
-            }
-            $this->error($response);
-            $this->info("\nEsperando 1 min para requisitar novamente...");
-        }catch (Exception $ex){
+                                                name = 'missaoveja'");
+            foreach ($programs as $program) {
+                $influencers = DB::select(' SELECT 
+                                                    * 
+                                                  FROM 
+                                                    Influencers 
+                                                  WHERE
+                                                    ativo = 1');
+                //barra de progresso
+                $this->_progressBar = $this->output->createProgressBar(count($influencers));
+                $this->_progressBar->setFormat('verbose');
+                $this->_progressBar->setMaxSteps(count($influencers));
+                $this->_progressBar->setEmptyBarCharacter(' ');
 
-            $responseBodyAsString = $ex->getResponse()->getBody()->getContents();
-            $response = json_decode($responseBodyAsString);
-            if( is_object($response)) {
-                $response = (array)$response;
+                //influenciadores
+                foreach ($influencers as $influencer) {
+                    $this->info("\niniciando processo para o influenciador:\nNome: " . $influencer->nome);
+                    //consumindo api
+                    $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
+                    $responseStories = $this->_guzzle->get($this->endPointApi . $influencer->instagram);
+                    $responseStories = json_decode($responseStories->getBody(), true);
+                    //verificando se é user privado
+                    if (!$responseStories['user']['is_private']) {
+                        $this->info('Usuario com visibilidade publica.');
+                        //verificando se alguma informação esta desatualizada
+                        #nome
+                        if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
+                            $this->error('> Nome diferente do Instagram, estamos atualizando.');
+                            $resultsUpdateName = DB::update("UPDATE 
+                                                                    Influencers                                               
+                                                                  SET
+                                                                    nome      = '".trim($responseStories['user']['full_name'])."'
+                                                                  WHERE 
+                                                                    instagram = '{$influencer->instagram}' 
+                                                                    ");
+                        }
+                        #img perfil
+                        if (strrpos($influencer->img, $responseStories['user']['profile_pic_url']) === false) {
+                            $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
+                            $influencer->img = $responseStories['user']['profile_pic_url'];
+                            $resultsUpdateInfluencer = DB::update("UPDATE 
+                                                                            Influencers 
+                                                                          SET
+                                                                            img       = '{$responseStories['user']['profile_pic_url']}'
+                                                                          WHERE 
+                                                                            instagram = '{$influencer->instagram}'                                                  
+                                                                          ");
+                        }
+
+                        $this->info("Hashtags do programa: {$program->hashtags}\n");
+
+                        //stories do influenciador
+                        $this->info("Comecando processo de Stories do influencer...\n");
+                        $this->info("\n------------------------------------------------\n");
+                        foreach ($responseStories['items'] as $storie){
+                            //verificando se o storie ja esta no banco
+                            $resultsInfluencerHasStorie = DB::select("SELECT
+                                                                                * 
+                                                                             FROM 
+                                                                                Historias 
+                                                                             WHERE 
+                                                                                idUser = :influencers_id
+                                                                             AND 
+                                                                                instagram_storie_id = :instagram_storie_id",
+                                                                      [
+                                                                          'influencers_id'      => $influencer->id,
+                                                                          'instagram_storie_id' => $storie['pk'],
+                                                                      ]);
+                            if(!$resultsInfluencerHasStorie){
+                                $this->info("> Salvando Storie de id:{$storie['pk']}.");
+                                //verificando se o storie tem hashtag
+                                if($storie['story_hashtags']) {
+                                    foreach ($storie['story_hashtags'] as $hashtags){
+                                        //se hash storie está nas hashs do programa
+                                        if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags))){
+                                            $this->temHashtagPrograma = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                //verificando se é imagem ou video
+                                if($storie['media_type'] == 1){ #imagem
+                                    if($this->temHashtagPrograma){
+                                        $explodeUrl = explode('/', $storie['image_versions2']['candidates'][2]['url']);
+                                        $pathStories = $this->pathS3.end($explodeUrl);
+
+                                        if(!Storage::disk('s3')->exists($pathStories)){
+
+                                            Storage::disk('s3')->put($pathStories,
+                                                file_get_contents($storie['image_versions2']['candidates'][2]['url'])
+                                            );
+
+                                            $resultsInsertStorie = DB::table('Historias')
+                                                ->insert(
+                                                    [
+                                                        'aplicativo'            => 1,
+                                                        'email'                 => $influencer->email,
+                                                        'temhashtag'            => 1,
+                                                        'temcitacao'            => NULL,
+                                                        'descricao'             => NULL,
+                                                        'aprovado'              => 0,
+                                                        'justificativa'         => 0,
+                                                        'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
+                                                        'urlimg'                => Storage::disk('s3')->url($pathStories),
+                                                        'pontos'                => 0,
+                                                        'idUser'                => $influencer->id,
+                                                        'midia_type'            => $storie['media_type'],
+                                                        'instagram_storie_id'   => $storie['pk'],
+                                                    ]
+                                                );
+                                        }
+                                    }else{
+                                        $resultsInsertStorie = DB::table('Historias')
+                                            ->insert(
+                                                [
+                                                    'aplicativo'            => 1,
+                                                    'email'                 => $influencer->email,
+                                                    'temhashtag'            => 0,
+                                                    'temcitacao'            => NULL,
+                                                    'descricao'             => NULL,
+                                                    'aprovado'              => 0,
+                                                    'justificativa'         => 0,
+                                                    'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
+                                                    'urlimg'                => $storie['image_versions2']['candidates'][2]['url'],
+                                                    'pontos'                => 0,
+                                                    'idUser'                => $influencer->id,
+                                                    'midia_type'            => $storie['media_type'],
+                                                    'instagram_storie_id'   => $storie['pk'],
+                                                ]
+                                            );
+                                    }
+                                }elseif ($storie['media_type'] == 2){#video
+                                    if($this->temHashtagPrograma){
+                                        $explodeUrl = explode('/', end($storie['video_versions'])['url']);
+                                        $pathStories = $this->pathS3.end($explodeUrl);
+
+                                        if(!Storage::disk('s3')->exists($pathStories)){
+
+                                            Storage::disk('s3')->put($pathStories,
+                                                                            file_get_contents(end($storie['video_versions'])['url'])
+                                                                           );
+
+                                            $resultsInsertStorie = DB::table('Historias')
+                                                ->insert(
+                                                    [
+                                                        'aplicativo'            => 1,
+                                                        'email'                 => $influencer->email,
+                                                        'temhashtag'            => 1,
+                                                        'temcitacao'            => NULL,
+                                                        'descricao'             => NULL,
+                                                        'aprovado'              => 0,
+                                                        'justificativa'         => 0,
+                                                        'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
+                                                        'urlimg'                => Storage::disk('s3')->url($pathStories),
+                                                        'pontos'                => 0,
+                                                        'idUser'                => $influencer->id,
+                                                        'midia_type'            => $storie['media_type'],
+                                                        'instagram_storie_id'   => $storie['pk'],
+                                                    ]
+                                                );
+                                        }
+                                    }else{
+                                        $resultsInsertStorie = DB::table('Historias')
+                                            ->insert(
+                                                [
+                                                    'aplicativo'            => 1,
+                                                    'email'                 => $influencer->email,
+                                                    'temhashtag'            => 0,
+                                                    'temcitacao'            => NULL,
+                                                    'descricao'             => NULL,
+                                                    'aprovado'              => 0,
+                                                    'justificativa'         => 0,
+                                                    'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
+                                                    'urlimg'                => end($storie['video_versions'])['url'],
+                                                    'pontos'                => 0,
+                                                    'idUser'                => $influencer->id,
+                                                    'midia_type'            => $storie['media_type'],
+                                                    'instagram_storie_id'   => $storie['pk'],
+                                                ]
+                                            );
+
+                                    }
+                                }
+                            }else{
+                                $this->info("> Storie de id:{$storie['pk']} já está na base.");
+                                continue;
+                            }
+                            $this->temHashtagPrograma = false;
+                        }
+                        $this->info("\n------------------------------------------------\n");
+                        //avançando barra de status
+                        $this->_progressBar->advance();
+
+                    } else {
+                        $this->error('Usuario com visibilidade privada.');
+                        continue;
+                    }
+
+                }//foreach influencers
+
+                //finalizando process bar
+                $this->_progressBar->finish();
+            }//foreach programs
+        }catch (\GuzzleHttp\Exception\ClientException $ex){
+            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $responseStories = json_decode($responseStoriesBodyAsString);
+            if( is_object($responseStories)) {
+                $responseStories = (array)$responseStories;
             }
-            $this->error($response);
-            exit();
+            $this->error($responseStories);
+            $this->alert("\nEsperando 1 min para requisitar novamente...");
+
+        }catch (\Illuminate\Database\QueryException $ex){
+            $this->error($ex->getMessage());
+
+        }catch (Exception $ex){
+            $this->error($ex->getMessage());
 
         }finally{
-            //finalizando process bar
-            $progressBar->finish();
+            //sempre executara
         }
 
     }

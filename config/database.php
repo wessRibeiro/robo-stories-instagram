@@ -67,6 +67,20 @@ return [
             'strict' => true,
             'engine' => null,
         ],
+        'louderhub' => [
+            'driver' => 'mysql',
+            'host' => env('louderhub_DB_HOST'),
+            'port' => env('louderhub_DB_PORT', '3306'),
+            'database' => env('louderhub_DB_DATABASE'),
+            'username' => env('louderhub_DB_USERNAME', 'asenses'),
+            'password' => env('louderhub_DB_PASSWORD', ''),
+            'unix_socket' => env('louderhub_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
 
         'pgsql' => [
             'driver' => 'pgsql',
