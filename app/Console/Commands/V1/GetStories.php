@@ -129,26 +129,26 @@ class GetStories extends Command
                         //stories do influenciador
                         $this->info("Comecando processo de Stories do influencer...\n");
                         $this->info("\n------------------------------------------------\n");
-                        foreach ($responseStories['items'] as $storie){
-                            //verificando se o storie ja esta no banco
-                            $resultsInfluencerHasStorie = DB::select("SELECT
+                        foreach ($responseStories['items'] as $story){
+                            //verificando se o story ja esta no banco
+                            $resultsInfluencerHasStory = DB::select("SELECT
                                                                                 * 
                                                                              FROM 
                                                                                 Historias 
                                                                              WHERE 
                                                                                 idUser = :influencers_id
                                                                              AND 
-                                                                                instagram_storie_id = :instagram_storie_id",
+                                                                                instagram_story_id = :instagram_story_id",
                                                                       [
                                                                           'influencers_id'      => $influencer->id,
-                                                                          'instagram_storie_id' => $storie['pk'],
+                                                                          'instagram_story_id' => $story['pk'],
                                                                       ]);
-                            if(!$resultsInfluencerHasStorie){
-                                $this->info("> Salvando Storie de id:{$storie['pk']}.");
-                                //verificando se o storie tem hashtag
-                                if($storie['story_hashtags']) {
-                                    foreach ($storie['story_hashtags'] as $hashtags){
-                                        //se hash storie está nas hashs do programa
+                            if(!$resultsInfluencerHasStory){
+                                $this->info("> Salvando Story de id:{$story['pk']}.");
+                                //verificando se o Story tem hashtag
+                                if($story['story_hashtags']) {
+                                    foreach ($story['story_hashtags'] as $hashtags){
+                                        //se hash Story está nas hashs do programa
                                         if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags))){
                                             $this->temHashtagPrograma = true;
                                             break;
@@ -157,18 +157,18 @@ class GetStories extends Command
                                 }
 
                                 //verificando se é imagem ou video
-                                if($storie['media_type'] == 1){ #imagem
+                                if($story['media_type'] == 1){ #imagem
                                     if($this->temHashtagPrograma){
-                                        $explodeUrl = explode('/', $storie['image_versions2']['candidates'][2]['url']);
+                                        $explodeUrl = explode('/', $story['image_versions2']['candidates'][2]['url']);
                                         $pathStories = $this->pathS3.pregString($this->regexStories, end($explodeUrl));
 
                                         if(!Storage::disk('s3')->exists($pathStories)){
 
                                             Storage::disk('s3')->put($pathStories,
-                                                file_get_contents($storie['image_versions2']['candidates'][2]['url'])
+                                                file_get_contents($story['image_versions2']['candidates'][2]['url'])
                                             );
 
-                                            $resultsInsertStorie = DB::table('Historias')
+                                            $resultsInsertStory = DB::table('Historias')
                                                 ->insert(
                                                     [
                                                         'aplicativo'            => 1,
@@ -178,17 +178,17 @@ class GetStories extends Command
                                                         'descricao'             => NULL,
                                                         'aprovado'              => 0,
                                                         'justificativa'         => 0,
-                                                        'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
+                                                        'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
                                                         'urlimg'                => Storage::disk('s3')->url($pathStories),
                                                         'pontos'                => 0,
                                                         'idUser'                => $influencer->id,
-                                                        'midia_type'            => $storie['media_type'],
-                                                        'instagram_storie_id'   => $storie['pk'],
+                                                        'midia_type'            => $story['media_type'],
+                                                        'instagram_story_id'   => $story['pk'],
                                                     ]
                                                 );
                                         }
                                     }else{
-                                        $resultsInsertStorie = DB::table('Historias')
+                                        $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -198,27 +198,27 @@ class GetStories extends Command
                                                     'descricao'             => NULL,
                                                     'aprovado'              => 0,
                                                     'justificativa'         => 0,
-                                                    'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
-                                                    'urlimg'                => pregString($this->regexStories, $storie['image_versions2']['candidates'][2]['url']),
+                                                    'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
+                                                    'urlimg'                => pregString($this->regexStories, $story['image_versions2']['candidates'][2]['url']),
                                                     'pontos'                => 0,
                                                     'idUser'                => $influencer->id,
-                                                    'midia_type'            => $storie['media_type'],
-                                                    'instagram_storie_id'   => $storie['pk'],
+                                                    'midia_type'            => $story['media_type'],
+                                                    'instagram_story_id'   => $story['pk'],
                                                 ]
                                             );
                                     }
-                                }elseif ($storie['media_type'] == 2){#video
+                                }elseif ($story['media_type'] == 2){#video
                                     if($this->temHashtagPrograma){
-                                        $explodeUrl = explode('/', end($storie['video_versions'])['url']);
+                                        $explodeUrl = explode('/', end($story['video_versions'])['url']);
                                         $pathStories = $this->pathS3.end($explodeUrl);
 
                                         if(!Storage::disk('s3')->exists($pathStories)){
 
                                             Storage::disk('s3')->put($pathStories,
-                                                                            file_get_contents(end($storie['video_versions'])['url'])
+                                                                            file_get_contents(end($story['video_versions'])['url'])
                                                                            );
 
-                                            $resultsInsertStorie = DB::table('Historias')
+                                            $resultsInsertStory = DB::table('Historias')
                                                 ->insert(
                                                     [
                                                         'aplicativo'            => 1,
@@ -228,17 +228,17 @@ class GetStories extends Command
                                                         'descricao'             => NULL,
                                                         'aprovado'              => 0,
                                                         'justificativa'         => 0,
-                                                        'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
+                                                        'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
                                                         'urlimg'                => Storage::disk('s3')->url($pathStories),
                                                         'pontos'                => 0,
                                                         'idUser'                => $influencer->id,
-                                                        'midia_type'            => $storie['media_type'],
-                                                        'instagram_storie_id'   => $storie['pk'],
+                                                        'midia_type'            => $story['media_type'],
+                                                        'instagram_story_id'   => $story['pk'],
                                                     ]
                                                 );
                                         }
                                     }else{
-                                        $resultsInsertStorie = DB::table('Historias')
+                                        $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -248,19 +248,19 @@ class GetStories extends Command
                                                     'descricao'             => NULL,
                                                     'aprovado'              => 0,
                                                     'justificativa'         => 0,
-                                                    'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
-                                                    'urlimg'                => end($storie['video_versions'])['url'],
+                                                    'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
+                                                    'urlimg'                => end($story['video_versions'])['url'],
                                                     'pontos'                => 0,
                                                     'idUser'                => $influencer->id,
-                                                    'midia_type'            => $storie['media_type'],
-                                                    'instagram_storie_id'   => $storie['pk'],
+                                                    'midia_type'            => $story['media_type'],
+                                                    'instagram_story_id'   => $story['pk'],
                                                 ]
                                             );
 
                                     }
                                 }
                             }else{
-                                $this->info("> Storie de id:{$storie['pk']} já está na base.");
+                                $this->info("> Story de id:{$story['pk']} já está na base.");
                                 continue;
                             }
                             $this->temHashtagPrograma = false;
@@ -296,7 +296,7 @@ class GetStories extends Command
 
         }finally{
             //sempre executara
-            $this->alert("Fim do processo :)\n");
+            $this->alert("\n\nFim do processo :)\n\n");
         }
 
     }
