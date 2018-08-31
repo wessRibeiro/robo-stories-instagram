@@ -33,11 +33,12 @@ class GetStories extends Command
     protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
     protected $endPointApi = 'http://api.storiesig.com/stories/';
-    protected $pathS3      = 'Stories/';
+    protected $pathS3;
     protected $_guzzle;
     protected $_carbon;
     protected $_progressBar;
     protected $temHashtagPrograma;
+    protected $regexStories = '(.*.jpg|.png|.jpeg|.gif|.mp4)';
 
     /**
      * Create a new command instance.
@@ -48,7 +49,7 @@ class GetStories extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-
+        $this->pathS3   = "Stories/{$this->_carbon->format('Y')}/";
         parent::__construct();
     }
 
@@ -109,14 +110,15 @@ class GetStories extends Command
                                                                     instagram = '{$influencer->instagram}' 
                                                                     ");
                         }
+                        //tratando url
+                        $urlProfilePic = pregString($this->regexStories, $responseStories['user']['profile_pic_url']);
                         #img perfil
-                        if (strrpos($influencer->img, $responseStories['user']['profile_pic_url']) === false) {
+                        if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $influencer->img = $responseStories['user']['profile_pic_url'];
                             $resultsUpdateInfluencer = DB::update("UPDATE 
                                                                             Influencers 
                                                                           SET
-                                                                            img       = '{$responseStories['user']['profile_pic_url']}'
+                                                                            img       = '{$urlProfilePic}'
                                                                           WHERE 
                                                                             instagram = '{$influencer->instagram}'                                                  
                                                                           ");
@@ -158,7 +160,7 @@ class GetStories extends Command
                                 if($storie['media_type'] == 1){ #imagem
                                     if($this->temHashtagPrograma){
                                         $explodeUrl = explode('/', $storie['image_versions2']['candidates'][2]['url']);
-                                        $pathStories = $this->pathS3.end($explodeUrl);
+                                        $pathStories = $this->pathS3.pregString($this->regexStories, end($explodeUrl));
 
                                         if(!Storage::disk('s3')->exists($pathStories)){
 
@@ -197,7 +199,7 @@ class GetStories extends Command
                                                     'aprovado'              => 0,
                                                     'justificativa'         => 0,
                                                     'vinculadoem'           => date('Y-m-d h:m:s', $storie['taken_at']),
-                                                    'urlimg'                => $storie['image_versions2']['candidates'][2]['url'],
+                                                    'urlimg'                => pregString($this->regexStories, $storie['image_versions2']['candidates'][2]['url']),
                                                     'pontos'                => 0,
                                                     'idUser'                => $influencer->id,
                                                     'midia_type'            => $storie['media_type'],
@@ -294,6 +296,7 @@ class GetStories extends Command
 
         }finally{
             //sempre executara
+            $this->alert("Fim do processo :)\n");
         }
 
     }

@@ -27,7 +27,10 @@
         ],
         "psr-4": {
             "Louder\\": "app/"
-        }
+        },
+        "files":[
+            "app/Helpers/MyHelper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
