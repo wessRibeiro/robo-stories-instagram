@@ -4,6 +4,7 @@ namespace Louder\Console\Commands\V1;
 
 use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class MigrateStoriesToS3 extends Command
@@ -41,22 +42,46 @@ class MigrateStoriesToS3 extends Command
      */
     public function handle()
     {
-        $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
-        Log::info($this->signature, ['Inicio' => $start]);
-        $this->info($start."\n");
-        $stories = DB::select("SELECT
-                                        *
-                                      FROM
-                                        Historias
-                                      WHERE
-                                        instagram_storie_id = ''");
-        //barra de progresso
-        $this->_progressBar = $this->output->createProgressBar(count($stories));
-        $this->_progressBar->setFormat('verbose');
-        $this->_progressBar->setMaxSteps(count($stories));
-        $this->_progressBar->setEmptyBarCharacter(' ');
-        foreach ($stories as $story) {
-            $this->info("\niniciando processo para o influenciador:\nNome: " . $influencer->nome);
+        try{
+            //TODO pegar videos do server mylouder
+            $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
+            Log::info($this->signature, ['Inicio' => $start]);
+            $this->info($start."\n");
+            $stories = DB::select("SELECT
+                                            *
+                                          FROM
+                                            Historias
+                                          WHERE
+                                            instagram_story_id IS NULL
+                                          AND 
+                                            midia_type IS NULL");
+            //barra de progresso
+            $this->_progressBar = $this->output->createProgressBar(count($stories));
+            $this->_progressBar->setFormat('verbose');
+            $this->_progressBar->setMaxSteps(count($stories));
+            $this->_progressBar->setEmptyBarCharacter(' ');
+            foreach ($stories as $story) {
+                $this->info("\niniciando processo para o story: " . $story->urlimg);
+                $urlFinal = trim("https://s3.us-east-2.amazonaws.com/mylouder/Stories/2018/{$story->urlimg}");
+                $resultsUpdateUrl = DB::update("UPDATE 
+                                                            Historias                                               
+                                                          SET
+                                                            temhashtag = 1,
+                                                            urlimg     = '{$urlFinal}'
+                                                          WHERE 
+                                                            id = '{$story->id}' 
+                                                            ");
+                $this->info("\nNova url do story: {$urlFinal}");
+                //avançando barra de status
+                $this->_progressBar->advance();
+            }
+            //finalizando process bar
+            $this->_progressBar->finish();
+        }catch (Exception $ex){
+            $this->error($ex->getMessage());
+        }finally{
+            //sempre executará
+            $this->alert("\n\nFim do processo :)\n\n");
         }
     }
 }

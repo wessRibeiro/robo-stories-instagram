@@ -163,30 +163,30 @@ class GetStories extends Command
                                         $pathStories = $this->pathS3.pregString($this->regexStories, end($explodeUrl));
 
                                         if(!Storage::disk('s3')->exists($pathStories)){
-
+                                            //subindo no s3
                                             Storage::disk('s3')->put($pathStories,
                                                 file_get_contents($story['image_versions2']['candidates'][2]['url'])
                                             );
 
-                                            $resultsInsertStory = DB::table('Historias')
-                                                ->insert(
-                                                    [
-                                                        'aplicativo'            => 1,
-                                                        'email'                 => $influencer->email,
-                                                        'temhashtag'            => 1,
-                                                        'temcitacao'            => NULL,
-                                                        'descricao'             => NULL,
-                                                        'aprovado'              => 0,
-                                                        'justificativa'         => 0,
-                                                        'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
-                                                        'urlimg'                => Storage::disk('s3')->url($pathStories),
-                                                        'pontos'                => 0,
-                                                        'idUser'                => $influencer->id,
-                                                        'midia_type'            => $story['media_type'],
-                                                        'instagram_story_id'   => $story['pk'],
-                                                    ]
-                                                );
                                         }
+                                        $resultsInsertStory = DB::table('Historias')
+                                            ->insert(
+                                                [
+                                                    'aplicativo'            => 1,
+                                                    'email'                 => $influencer->email,
+                                                    'temhashtag'            => 1,
+                                                    'temcitacao'            => NULL,
+                                                    'descricao'             => NULL,
+                                                    'aprovado'              => 0,
+                                                    'justificativa'         => 0,
+                                                    'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
+                                                    'urlimg'                => Storage::disk('s3')->url($pathStories),
+                                                    'pontos'                => 0,
+                                                    'idUser'                => $influencer->id,
+                                                    'midia_type'            => $story['media_type'],
+                                                    'instagram_story_id'   => $story['pk'],
+                                                ]
+                                            );
                                     }else{
                                         $resultsInsertStory = DB::table('Historias')
                                             ->insert(
