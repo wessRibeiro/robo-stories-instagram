@@ -38,7 +38,7 @@ class GetStories extends Command
     protected $_carbon;
     protected $_progressBar;
     protected $temHashtagPrograma;
-    protected $regexStories = '(.*.jpg|.png|.jpeg|.gif|.mp4)';
+    protected $regexStories = '([^*]*)(.*.jpg|.png|.jpeg|.gif|.mp4)';
 
     /**
      * Create a new command instance.

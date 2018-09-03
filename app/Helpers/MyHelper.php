@@ -526,7 +526,7 @@ if(! function_exists('arraySortByColunm')){
 if(! function_exists('pregString')){
     function pregString($pattern = '', $myString){
         $influencerImgRegex = [];
-        preg_match_all($pattern, $myString, $influencerImgRegex);
-        return $influencerImgRegex[0][0];
+        preg_match($pattern, $myString, $influencerImgRegex);
+        return $influencerImgRegex[0];
     }
 }
