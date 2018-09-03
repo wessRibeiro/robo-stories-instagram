@@ -217,25 +217,25 @@ class GetStories extends Command
                                                                             file_get_contents(end($story['video_versions'])['url'])
                                                                            );
 
-                                            $resultsInsertStory = DB::table('Historias')
-                                                ->insert(
-                                                    [
-                                                        'aplicativo'            => 1,
-                                                        'email'                 => $influencer->email,
-                                                        'temhashtag'            => 1,
-                                                        'temcitacao'            => NULL,
-                                                        'descricao'             => NULL,
-                                                        'aprovado'              => 0,
-                                                        'justificativa'         => 0,
-                                                        'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
-                                                        'urlimg'                => Storage::disk('s3')->url($pathStories),
-                                                        'pontos'                => 0,
-                                                        'idUser'                => $influencer->id,
-                                                        'midia_type'            => $story['media_type'],
-                                                        'instagram_story_id'   => $story['pk'],
-                                                    ]
-                                                );
                                         }
+                                        $resultsInsertStory = DB::table('Historias')
+                                            ->insert(
+                                                [
+                                                    'aplicativo'            => 1,
+                                                    'email'                 => $influencer->email,
+                                                    'temhashtag'            => 1,
+                                                    'temcitacao'            => NULL,
+                                                    'descricao'             => NULL,
+                                                    'aprovado'              => 0,
+                                                    'justificativa'         => 0,
+                                                    'vinculadoem'           => date('Y-m-d h:m:s', $story['taken_at']),
+                                                    'urlimg'                => Storage::disk('s3')->url($pathStories),
+                                                    'pontos'                => 0,
+                                                    'idUser'                => $influencer->id,
+                                                    'midia_type'            => $story['media_type'],
+                                                    'instagram_story_id'   => $story['pk'],
+                                                ]
+                                            );
                                     }else{
                                         $resultsInsertStory = DB::table('Historias')
                                             ->insert(
@@ -278,13 +278,22 @@ class GetStories extends Command
                 //finalizando process bar
                 $this->_progressBar->finish();
             }//foreach programs
-        }catch (\GuzzleHttp\Exception\ClientException $ex){
+        }catch (\GuzzleHttp\Exception\RequestException $ex){
             $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
             $responseStories = json_decode($responseStoriesBodyAsString);
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
             }
-            $this->error($responseStories);
+            $this->error(var_dump($responseStories));
+            $this->alert("\nEsperando 1 min para requisitar novamente...");
+
+        }catch (\GuzzleHttp\Exception\RequestException $ex){
+            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $responseStories = json_decode($responseStoriesBodyAsString);
+            if( is_object($responseStories)) {
+                $responseStories = (array)$responseStories;
+            }
+            $this->error(var_dump($responseStories));
             $this->alert("\nEsperando 1 min para requisitar novamente...");
 
         }catch (\Illuminate\Database\QueryException $ex){
