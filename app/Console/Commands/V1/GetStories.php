@@ -210,8 +210,7 @@ class GetStories extends Command
                                 }elseif ($story['media_type'] == 2){#video
                                     if($this->temHashtagPrograma){
                                         $explodeUrl = explode('/', end($story['video_versions'])['url']);
-                                        $pathStories = $this->pathS3.end($explodeUrl);
-
+                                        $pathStories = pregString($this->regexStories, $this->pathS3.end($explodeUrl));
                                         if(!Storage::disk('s3')->exists($pathStories)){
 
                                             Storage::disk('s3')->put($pathStories,
