@@ -284,7 +284,7 @@ class GetStories extends Command
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
             }
-            $this->error(var_dump($responseStories));
+            $this->error($responseStories['message']);
             $this->alert("\nEsperando 1 min para requisitar novamente...");
 
         }catch (\GuzzleHttp\Exception\RequestException $ex){
@@ -293,7 +293,7 @@ class GetStories extends Command
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
             }
-            $this->error(var_dump($responseStories));
+            $this->error($responseStories['message']);
             $this->alert("\nEsperando 1 min para requisitar novamente...");
 
         }catch (\Illuminate\Database\QueryException $ex){
