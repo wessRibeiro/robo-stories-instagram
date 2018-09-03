@@ -24,12 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        /*$schedule->command('Instagram:v1.getStories')
-                 ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_h_m_i').'_robo_instagram.log');*/
-
         $schedule->command('Instagram:v1.getStories')
-                 ->everyFiveMinutes()
+                 ->hourly()
                  ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_h_m_i').'_robo_instagram.log');
     }
 
