@@ -95,6 +95,44 @@ class GraphicService
         $resultTop5Influencers = DB::select(DB::raw($sqlTop5Influencers));
         $universe['top5Influencers'] = json_decode(json_encode($resultTop5Influencers), true);
 
+        $sqlTop5Ranking = 'SELECT 
+                              per.id,
+                              per.profile_pic_url imagem,
+                              per.username,
+                              per.full_name,
+                              (
+                                (SUM(p.likes))
+                                +
+                                3 * (SUM(p.comentarios))
+                                +
+                                300 * (COUNT(pc.id))
+                                +
+                                100 * IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0)
+                              ) pontos ,
+                              per.followed_by seguidores,
+                            (COUNT(pc.id)) posts,
+                            (SELECT SUM(pr.pontos) FROM PremiosResgatados pr WHERE pr.idInfluencer IN (SELECT DISTINCT i.id FROM Influencers i WHERE i.idInstagram = per.idInfluencer)) resgatados,
+                             SUM(p.comentarios) comentarios,
+                            (SELECT COUNT(inf.id) FROM Influencers inf WHERE inf.ativo = "1") total_influencers,
+                                  IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0) historias
+            
+                        FROM 
+                          Posts_Curadoria pc
+                        JOIN 
+                          Posts p ON p.code = pc.idPost
+                        JOIN 
+                          Perfis per ON per.idInfluencer = p.owner_id
+                        WHERE 
+                          pc.aprovado = "1"
+                        GROUP BY 
+                          p.owner_id , per.profile_pic_url , per.username , per.full_name
+                        ORDER BY pontos DESC
+                          LIMIT 5';
+
+        $resultTop5Ranking = DB::select(DB::raw($sqlTop5Ranking));
+        $universe['top5Ranking'] = json_decode(json_encode($resultTop5Ranking), true);
+
+
         return $universe;
     }
 }
