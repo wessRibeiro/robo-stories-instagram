@@ -51,7 +51,7 @@ class GraphicService
         ];
 
         $universe['postsPercent']    = number_format(($universe['sumPostsHashtag']*100)/$universe['sumPostsToday'], 1)."%";
-        $universe['CommentsPercent'] = number_format(($universe['sumCommentsHashtag']*100)/$universe['sumCommentsToday'], 1)."%";
+        $universe['commentsPercent'] = number_format(($universe['sumCommentsHashtag']*100)/$universe['sumCommentsToday'], 1)."%";
         $universe["likesPercent"]    = number_format(($universe['sumLikesHashtag']*100)/$universe['sumLikesToday'], 1)."%";
         $universe["universePercent"] = number_format(($universe['sumPostsHashtag']*100)/$universe["universeHashtag"], 1)."%";
         $universe['totalFollowers']  = collect();
