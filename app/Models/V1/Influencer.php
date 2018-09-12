@@ -14,4 +14,9 @@ class Influencer extends Model
     {
         return $this->hasMany('Louder\Models\V1\Story', 'iduser', 'id');
     }
+
+    public function profile()
+    {
+        return $this->hasOne('Louder\Models\V1\Profile', 'idInfluencer', 'idInstagram');
+    }
 }
