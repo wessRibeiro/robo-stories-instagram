@@ -181,27 +181,22 @@ if (! function_exists('return_month')) {
 }
 
 if (! function_exists('meses')) {
-    function meses($id = false)
+    function meses()
     {
         $meses = array(
-            '01'	=> 'JAN',
-            '02'	=> 'FEV',
-            '03'	=> 'MAR',
-            '04'	=> 'ABR',
-            '05'	=> 'MAI',
-            '06'	=> 'JUN',
-            '07'	=> 'JUL',
-            '08'	=> 'AGO',
-            '09'	=> 'SET',
-            '10'	=> 'OUT',
-            '11'	=> 'NOV',
-            '12'	=> 'DEZ'
+            'Jan',
+            'Fev',
+            'Mar',
+            'Abr',
+            'Mai',
+            'Jun',
+            'Jul',
+            'Ago',
+            'Set',
+            'Out',
+            'Nov',
+            'Dez'
         );
-
-        if($id){
-            return $meses[$id];
-        }
-
         return $meses;
     }
 }
@@ -239,23 +234,19 @@ if (! function_exists('implode_n')){
 }
 
 if (! function_exists('semanas')){
-    function semanas($name = false)
+    function semanas()
     {
-        $semanas = [
-            'Sunday'    => 'Domingo',
-            'Monday'    => 'Segunda-Feira',
-            'Tuesday'   => 'Terça-Feira ',
-            'Wednesday' => 'Quarta-Feira',
-            'Thursday'  => 'Quinta-Feira',
-            'Friday'    => 'Sexta-Feira',
-            'Saturday'  => 'Sábado',
+        $diaSemana = [
+            'Domingo',
+            'Segunda',
+            'Terça ',
+            'Quarta',
+            'Quinta',
+            'Sexta',
+            'Sábado',
         ];
 
-        if($name){
-            return $semanas[$name];
-        }
-
-        return $semanas;
+        return $diaSemana;
     }
 }
 

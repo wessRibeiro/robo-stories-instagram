@@ -14,26 +14,34 @@ use Illuminate\Support\Facades\DB;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Analytics;
 use Louder\Models\V1\Story;
+use Louder\Services\Api\V1\Graphics\GraphicFeedService;
+use Louder\Services\Api\V1\Graphics\GraphicWeeklyImpactService;
 
 class GraphicService
 {
     protected $_influencerModel;
+    protected $_graphicFeedService;
+    protected $_graphicWeeklyImpactService;
     protected $_analyticsModel;
     protected $_storyModel;
     protected $_router;
     protected $_request;
 
-    public function __construct(Router          $router,
-                                Influencer      $influencerModel,
-                                Story           $storyModel,
-                                Analytics       $analyticsModel,
-                                Request         $request)
+    public function __construct(Router                      $router,
+                                Influencer                  $influencerModel,
+                                Story                       $storyModel,
+                                GraphicFeedService          $graphicFeedService,
+                                GraphicWeeklyImpactService  $graphicWeeklyImpactService,
+                                Analytics                   $analyticsModel,
+                                Request                     $request)
     {
-        $this->_influencerModel     = $influencerModel;
-        $this->_storyModel          = $storyModel;
-        $this->_analyticsModel      = $analyticsModel;
-        $this->_router              = $router;
-        $this->_request             = $request;
+        $this->_influencerModel             = $influencerModel;
+        $this->_storyModel                  = $storyModel;
+        $this->_graphicFeedService          = $graphicFeedService;
+        $this->_graphicWeeklyImpactService  = $graphicWeeklyImpactService;
+        $this->_analyticsModel              = $analyticsModel;
+        $this->_router                      = $router;
+        $this->_request                     = $request;
     }
 
     public function index(){
@@ -131,7 +139,8 @@ class GraphicService
 
         $resultTop5Ranking = DB::select(DB::raw($sqlTop5Ranking));
         $universe['top5Ranking'] = json_decode(json_encode($resultTop5Ranking), true);
-
+        $universe['graphics']['Feed']         = $this->_graphicFeedService->index();
+        $universe['graphics']['weeklyImpact'] = $this->_graphicWeeklyImpactService->index();
 
         return $universe;
     }
