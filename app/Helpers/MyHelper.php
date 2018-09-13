@@ -521,3 +521,26 @@ if(! function_exists('pregString')){
         return $influencerImgRegex[0];
     }
 }
+
+/*
+ * Author: Guilherme Galdino
+ * date: 13/09/2018
+ * return: string
+ * description: retorna o dia da semana em forma de texto
+ *
+ */
+if(! function_exists('getDiaSemana')){
+    function getDiaSemana($data){
+        $dias = [
+            1 => 'Segunda',
+            2 => 'Terça',
+            3 => 'Quarta',
+            4 => 'Quinta',
+            5 => 'Sexta',
+            6 => 'Sábado',
+            7 => 'Domingo',
+        ];
+
+        return $dias[date('N', strtotime($data))];
+    }
+}
