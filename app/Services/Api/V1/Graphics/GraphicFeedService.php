@@ -13,6 +13,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\DB;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Analytics;
+use Carbon\Carbon;
 
 class GraphicFeedService
 {
@@ -20,30 +21,77 @@ class GraphicFeedService
     protected $_analyticsModel;
     protected $_router;
     protected $_request;
+    protected $_carbon;
 
     public function __construct(Router          $router,
                                 Influencer      $influencerModel,
                                 Analytics       $analyticsModel,
+                                Carbon          $carbon,
                                 Request         $request)
     {
         $this->_influencerModel  = $influencerModel;
         $this->_analyticsModel   = $analyticsModel;
         $this->_router           = $router;
+        $this->_carbon           = $carbon;
         $this->_request          = $request;
     }
 
     public function index(){
 
-        $return['labels'] = meses();
+        $return['labels'] = mesesAcronimo();
         $return['datasets']['posts']['label'] = 'Posts';
-        //dd(collect($this->_analyticsModel->orderBy('dataHora')->get()));
-        $return['datasets']['posts']['data']  = [1,4,34,5,5,6,7,45,93,310,511,12];
+        //dados do ano atual
+        $dataAnalytics = collect($this->_analyticsModel->where('data', '>=', $this->_carbon->format('Y'))
+                                                       ->orderBy('data')
+                                                       ->get()
+                                 );
 
-        $return['datasets']['comments']['label'] = 'Comentários';
-        $return['datasets']['comments']['data']  = [1,2,3,4,55,6,57,8,59,130,131,142];
+        //inicializando
+        foreach (meses() as $key => $mes) {
+            $mothHasAnalytics[$key]['comments'] = [];
+            $mothHasAnalytics[$key]['posts']    = [];
+            $mothHasAnalytics[$key]['likes']    = [];
+        }
 
-        $return['datasets']['likes']['label'] = 'Likes';
-        $return['datasets']['likes']['data']  =   [1,2,3,4,35,36,37,8,59,10,511,512];
+        //posicionando dados em suas datas especificas
+        foreach($dataAnalytics as $analytic){
+            $dataAnalytic = $this->_carbon->createFromFormat('Y-m-d', $analytic->data);
+            array_push($mothHasAnalytics[$dataAnalytic->format('n')]['comments'], $analytic->comentariosHashtag);
+            array_push($mothHasAnalytics[$dataAnalytic->format('n')]['posts'], $analytic->postsHashtag);
+            array_push($mothHasAnalytics[$dataAnalytic->format('n')]['likes'], $analytic->likesHashtag);
+        }
+        //formatando para o gráfico
+        $posts = [
+            'label'             => 'Posts',
+            'backgroundColor'   => 'rgba(9,35,251,0.3)',
+            'data'              =>  []
+        ];
+
+        $comments = [
+            'label'             => 'Comentários',
+            'backgroundColor'   => 'rgba(248,109,32,0.3)',
+            'data'              =>  []
+        ];
+
+        $likes = [
+            'label'             => 'Likes',
+            'backgroundColor'   => 'rgba(255,158,0,0.3)',
+            'data'              =>  []
+        ];
+
+        //somando posições
+        foreach (meses() as $key => $mes) {
+            array_push($comments['data'], collect($mothHasAnalytics[$key]['comments'])->sum());
+            array_push($posts['data'], collect($mothHasAnalytics[$key]['posts'])->sum());
+            array_push($likes['data'], collect($mothHasAnalytics[$key]['likes'])->sum());
+        }
+
+        $return = [];
+
+        array_push($return, $posts);
+        array_push($return, $comments);
+        array_push($return, $likes);
+
 
         return $return;
     }
