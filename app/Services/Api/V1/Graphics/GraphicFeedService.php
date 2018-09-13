@@ -36,7 +36,7 @@ class GraphicFeedService
 
         $return['labels'] = meses();
         $return['datasets']['posts']['label'] = 'Posts';
-        dd(collect($this->_analyticsModel->orderBy('dataHora')->get()));
+        //dd(collect($this->_analyticsModel->orderBy('dataHora')->get()));
         $return['datasets']['posts']['data']  = [1,4,34,5,5,6,7,45,93,310,511,12];
 
         $return['datasets']['comments']['label'] = 'Comentários';
