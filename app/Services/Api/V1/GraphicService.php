@@ -139,7 +139,7 @@ class GraphicService
 
         $resultTop5Ranking = DB::select(DB::raw($sqlTop5Ranking));
         $universe['top5Ranking'] = json_decode(json_encode($resultTop5Ranking), true);
-        $universe['graphics']['Feed']         = $this->_graphicFeedService->index();
+        $universe['graphics']['feed'] = $this->_graphicFeedService->index();
         $universe['graphics']['weeklyImpact'] = $this->_graphicWeeklyImpactService->index();
 
         return $universe;
