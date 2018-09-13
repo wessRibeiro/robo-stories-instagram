@@ -32,10 +32,30 @@ class GraphicWeeklyImpactService
         $this->_request          = $request;
     }
 
-    public function index(){
-        $return['labels'] = semanas();
-        $return['datasets']['impact']['label'] = 'Impacto';
-        $return['datasets']['data']  = [31,332,43,34,45,66,67];
+    public function index($qtd = 7){
+
+        $data = date('Y-m-d', strtotime("-" . ($qtd - 1) . " day"));
+        $dataAtual = date('Y-m-d');
+        
+        $days = collect($this->_analyticsModel->select('data', 'postsHashtag')
+                                              ->where('data', '>=', $data)
+                                              ->where('postsHashtag', '>', '0')->get()->toArray());
+        
+        while($data <= $dataAtual){
+            $dados[$data]['value'] = 0;
+            $dados[$data]['label'] = ($data == $dataAtual) ? 'Hoje': getDiaSemana($data);
+
+            $data = date('Y-m-d', strtotime("+1 day", strtotime($data)));
+        }
+
+        foreach($days as $day){
+            $dados[$day['data']]['value'] += $day['postsHashtag'];
+        }
+
+        $return['labels'] = array_column($dados, 'label');
+        $return['datasets']['impact']['label'] = 'Impacto (Ultimos ' . $qtd . ' dias)';
+        $return['datasets']['data']  = array_column($dados, 'value');
+        
         return $return;
     }
 }
