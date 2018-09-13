@@ -35,7 +35,7 @@ class GraphicWeeklyImpactService
     public function index(){
         $return['labels'] = semanas();
         $return['datasets']['impact']['label'] = 'Impacto';
-        $return['datasets']['data']  = [1,2,3,4,5,6,7];
+        $return['datasets']['data']  = [31,332,43,34,45,66,67];
         return $return;
     }
 }
