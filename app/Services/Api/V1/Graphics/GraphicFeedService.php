@@ -86,11 +86,10 @@ class GraphicFeedService
             array_push($likes['data'], collect($mothHasAnalytics[$key]['likes'])->sum());
         }
 
-        $return = [];
 
-        array_push($return, $posts);
-        array_push($return, $comments);
-        array_push($return, $likes);
+        array_push($return['datasets'], $posts);
+        array_push($return['datasets'], $comments);
+        array_push($return['datasets'], $likes);
 
 
         return $return;
