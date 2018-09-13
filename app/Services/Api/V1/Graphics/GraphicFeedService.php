@@ -39,7 +39,7 @@ class GraphicFeedService
     public function index(){
 
         $return['labels'] = mesesAcronimo();
-        $return['datasets']['posts']['label'] = 'Posts';
+
         //dados do ano atual
         $dataAnalytics = collect($this->_analyticsModel->where('data', '>=', $this->_carbon->format('Y'))
                                                        ->orderBy('data')
@@ -86,10 +86,7 @@ class GraphicFeedService
             array_push($likes['data'], collect($mothHasAnalytics[$key]['likes'])->sum());
         }
 
-
-        array_push($return['datasets'], $posts);
-        array_push($return['datasets'], $comments);
-        array_push($return['datasets'], $likes);
+        $return['datasets'] = [$posts, $comments, $likes];
 
 
         return $return;
