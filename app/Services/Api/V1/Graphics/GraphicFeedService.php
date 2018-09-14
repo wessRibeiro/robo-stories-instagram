@@ -51,8 +51,9 @@ class GraphicFeedService
 
         //dados do ano atual stories
         $dataStories = collect($this->_storyModel->where('vinculadoem', '>=', $this->_carbon->format('Y'))
-                                                   ->orderBy('vinculadoem')
-                                                   ->get()
+                                                 ->where('temhashtag', '=', 1)
+                                                 ->orderBy('vinculadoem')
+                                                 ->get()
                              );
 
         //inicializando
