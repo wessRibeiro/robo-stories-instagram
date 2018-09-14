@@ -122,7 +122,7 @@ class GraphicService
                             (SELECT SUM(pr.pontos) FROM PremiosResgatados pr WHERE pr.idInfluencer IN (SELECT DISTINCT i.id FROM Influencers i WHERE i.idInstagram = per.idInfluencer)) resgatados,
                              SUM(p.comentarios) comentarios,
                             (SELECT COUNT(inf.id) FROM Influencers inf WHERE inf.ativo = "1") total_influencers,
-                                  IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0) historias
+                                  IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE temhashtag = 1 AND h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0) historias
             
                         FROM 
                           Posts_Curadoria pc
