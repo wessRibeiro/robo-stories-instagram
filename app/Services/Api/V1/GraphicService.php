@@ -115,7 +115,7 @@ class GraphicService
                                 +
                                 300 * (COUNT(pc.id))
                                 +
-                                100 * IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0)
+                                100 * IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE temhashtag = 1 AND h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0)
                               ) pontos ,
                               per.followed_by seguidores,
                             (COUNT(pc.id)) posts,
