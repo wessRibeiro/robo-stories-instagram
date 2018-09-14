@@ -101,7 +101,7 @@ class GraphicFeedService
         $stories = [
             'label'             => 'Stories',
             'backgroundColor'   => 'rgba(102,51,153,0.3)',
-            'data'              =>  $mothHasStories
+            'data'              =>  []
         ];
 
         //somando posições
@@ -109,6 +109,7 @@ class GraphicFeedService
             array_push($comments['data'], collect($mothHasAnalytics[$key]['comments'])->sum());
             array_push($posts['data'], collect($mothHasAnalytics[$key]['posts'])->sum());
             array_push($likes['data'], collect($mothHasAnalytics[$key]['likes'])->sum());
+            array_push($stories['data'],$mothHasStories[$key]);
         }
 
         $return['datasets'] = [$posts, $comments, $likes, $stories];

@@ -68,7 +68,6 @@ class GraphicService
             $universe['totalFollowers']->push($influencer->profile->followed_by);
         }
         $universe['totalFollowers']  = $universe['totalFollowers']->sum();
-        //$universe['totalFollowers']  = number_format((int)$universe['totalFollowers']->sum(), 2,',','.');
         $universe['engagement']      = round(($universe['sumLikesHashtag'] + $universe['sumCommentsHashtag'])/$universe['totalFollowers'], 2)."%";
         $universe['impact']          = round((($universe['sumPostsHashtag'] * $universe['totalFollowers']) * 4)/100,0 );
 
