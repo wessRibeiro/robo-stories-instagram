@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('Instagram:v1.getStories')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_h_m_i').'_robo_instagram.log');
+                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_H_m_s').'_robo_instagram.log');
     }
 
     /**
