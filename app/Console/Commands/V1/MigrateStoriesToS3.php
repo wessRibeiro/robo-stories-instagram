@@ -14,7 +14,7 @@ class MigrateStoriesToS3 extends Command
      *
      * @var string
      */
-    protected $signature = 'Instagram:V1.migrateStoriesToS3 {myDatabase}';
+    protected $signature = 'Instagram:V1.migrateStoriesToS3 {myConnection}';
 
     /**
      * The console command description.
@@ -23,6 +23,7 @@ class MigrateStoriesToS3 extends Command
      */
     protected $description = 'Migrate stories of influencers on server to S3 and replace all urlimg on database (this job belongs to louder 1.0)';
     protected $_carbon;
+    protected $mydatabase;
     protected $_progressBar;
     /**
      * Create a new command instance.
@@ -33,6 +34,7 @@ class MigrateStoriesToS3 extends Command
     {
         $this->_carbon	= $carbon;
         parent::__construct();
+
     }
 
     /**
@@ -47,7 +49,7 @@ class MigrateStoriesToS3 extends Command
             $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
             Log::info($this->signature, ['Inicio' => $start]);
             $this->info($start."\n");
-            $stories = DB::select("SELECT
+            $stories = DB::connection($this->argument('myConnection'))->select("SELECT
                                             *
                                           FROM
                                             Historias
@@ -62,8 +64,9 @@ class MigrateStoriesToS3 extends Command
             $this->_progressBar->setEmptyBarCharacter(' ');
             foreach ($stories as $story) {
                 $this->info("\niniciando processo para o story: " . $story->urlimg);
-                $urlFinal = trim("https://s3.us-east-2.amazonaws.com/mylouder/Stories/2018/{$story->urlimg}");
-                $resultsUpdateUrl = DB::update("UPDATE 
+                $urlFinal = trim("https://s3.us-east-2.amazonaws.com/mylouder/1/spoktoberfest/stories/2018/{$story->urlimg}");
+
+                $resultsUpdateUrl = DB::connection($this->argument('myConnection'))->update("UPDATE 
                                                             Historias                                               
                                                           SET
                                                             temhashtag = 1,

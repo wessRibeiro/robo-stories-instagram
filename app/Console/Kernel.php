@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \Louder\Console\Commands\V1\GetStories::class,
+        \Louder\Console\Commands\V1\GetStoriesOktober::class,
     ];
 
     /**
@@ -25,8 +26,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('Instagram:v1.getStories')
-                 ->hourly()
+                 ->hourlyAt(1)
                  ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_H_m_s').'_robo_instagram.log');
+        $schedule->command('Instagram:v1.getStoriesOktober')
+            ->hourlyAt(10)
+            ->sendOutputTo('/var/www/log/mylouder/oktoberfest/'.date('d_m_Y_H_m_s').'_robo_oktoberfest.log');
     }
 
     /**
