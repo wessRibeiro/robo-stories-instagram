@@ -14,7 +14,7 @@ class MigrateStoriesToS3 extends Command
      *
      * @var string
      */
-    protected $signature = 'Instagram:V1.migrateStoriesToS3';
+    protected $signature = 'Instagram:V1.migrateStoriesToS3 {myDatabase}';
 
     /**
      * The console command description.
