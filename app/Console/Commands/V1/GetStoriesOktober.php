@@ -77,7 +77,7 @@ class GetStoriesOktober extends Command
                                    );
 
             foreach ($programs as $program) {
-                $influencers = DB::connection('oktoberfest')
+                $influencers = DB::connection('spoktoberfest')
                                  ->select('SELECT 
                                             * 
                                            FROM 
@@ -105,7 +105,7 @@ class GetStoriesOktober extends Command
                         #nome
                         if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
                             $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateName = DB::connection('oktoberfest')->update("UPDATE 
+                            $resultsUpdateName = DB::connection('spoktoberfest')->update("UPDATE 
                                                                     Influencers                                               
                                                                   SET
                                                                     nome      = '".trim($responseStories['user']['full_name'])."'
@@ -118,7 +118,7 @@ class GetStoriesOktober extends Command
                         #img perfil
                         if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateInfluencer = DB::connection('oktoberfest')->update("UPDATE 
+                            $resultsUpdateInfluencer = DB::connection('spoktoberfest')->update("UPDATE 
                                                                             Influencers 
                                                                           SET
                                                                             img       = '{$urlProfilePic}'
@@ -134,7 +134,7 @@ class GetStoriesOktober extends Command
                         $this->info("\n------------------------------------------------\n");
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
-                            $resultsInfluencerHasStory = DB::connection('oktoberfest')->select("SELECT
+                            $resultsInfluencerHasStory = DB::connection('spoktoberfest')->select("SELECT
                                                                                 * 
                                                                              FROM 
                                                                                 Historias 
@@ -172,7 +172,7 @@ class GetStoriesOktober extends Command
                                             );
 
                                         }
-                                        $resultsInsertStory = DB::connection('oktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -191,7 +191,7 @@ class GetStoriesOktober extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('oktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -221,7 +221,7 @@ class GetStoriesOktober extends Command
                                                                            );
 
                                         }
-                                        $resultsInsertStory = DB::connection('oktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -240,7 +240,7 @@ class GetStoriesOktober extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('oktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
