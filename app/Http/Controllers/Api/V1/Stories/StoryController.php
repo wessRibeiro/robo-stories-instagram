@@ -3,6 +3,7 @@
 namespace Louder\Http\Controllers\Api\V1\Stories;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Louder\Http\Controllers\Controller;
 use Louder\Services\Api\V1\StoryService;
 
@@ -10,11 +11,13 @@ class StoryController extends Controller
 {
     protected $_service;
     protected $_request;
+    protected $_route;
 
-    function __construct(StoryService $service, Request $request)
+    function __construct(StoryService $service, Request $request, Route $_route)
     {
-        $this->_service = $service;
         $this->_request = $request;
+        $this->_route   = $_route;
+        $this->_service = $service;
     }
 
     function index()

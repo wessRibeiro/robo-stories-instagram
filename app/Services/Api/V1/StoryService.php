@@ -10,7 +10,7 @@ namespace Louder\Services\Api\V1;
 
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Router;
+use Illuminate\Routing\Route;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Story;
 
@@ -21,19 +21,18 @@ class StoryService
     protected $_router;
     protected $_request;
 
-    public function __construct(Router          $router,
+    public function __construct(Route           $route,
                                 Influencer      $influencerModel,
                                 Story           $storyModel,
                                 Request         $request)
     {
-        $this->_influencerModel     = $influencerModel;
-        $this->_storyModel          = $storyModel;
-        $this->_router              = $router;
+        $this->_route               = $route;
         $this->_request             = $request;
+        $this->_influencerModel     = $influencerModel->setConnection($this->_route->parameter('program'));
+        $this->_storyModel          = $storyModel->setConnection($this->_route->parameter('program'));
     }
 
     public function index(){
-
         $dataInfluencerHasStories = [];
 
         foreach ($this->_influencerModel->where('ativo', true)->get() as $influencer) {
