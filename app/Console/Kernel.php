@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \Louder\Console\Commands\V1\GetStories::class,
         \Louder\Console\Commands\V1\GetStoriesOktober::class,
+        \Louder\Console\Commands\V1\GetStoriesNissin::class,
     ];
 
     /**
