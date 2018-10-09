@@ -71,8 +71,8 @@ class StoryService
             $update                  = array();
             $update['aprovado']      = true;
             $update['justificativa'] = null;
-            dd($this->_request);
-            if ($request->get('influencerId') != 0) {
+            
+            if ($this->_request->get('influencerId') != 0) {
                 $update['iduser'] = $this->_request->get('influencerId');
             }
 
