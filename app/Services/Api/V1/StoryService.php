@@ -52,6 +52,7 @@ class StoryService
                                 'datePost'         => mysql_br_date_time($story->vinculadoem),
                                 'midiaType'        => $story->midia_type,
                                 'instagramStoryId' => $story->instagram_story_id,
+                                'is_geral'         => $influencer->is_geral,
                            ]
                 );
 
