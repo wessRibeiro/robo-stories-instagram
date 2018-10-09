@@ -65,7 +65,7 @@ class StoryService
         return $this->_influencerModel->where('ativo', '=', 1)->get();
     }
 
-    public function approve($instagramStoryId, Request $request)
+    public function approve(Request $request)
     {
         try {
             $update                  = array();
