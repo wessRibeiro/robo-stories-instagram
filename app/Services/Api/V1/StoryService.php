@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Story;
-use Illuminate\Support\Facades\Request;
 
 class StoryService
 {
