@@ -44,14 +44,14 @@ class StoryService
             ) {
                 array_push($dataInfluencerHasStories,
                     [
-                        'name' => trim($influencer->nome),
-                        'instagramUser' => $influencer->instagram,
-                        'pictureProfile' => $influencer->img,
-                        'urlStory' => $story->urlimg,
-                        'datePost' => mysql_br_date_time($story->vinculadoem),
-                        'midiaType' => $story->midia_type,
-                        'instagramStoryId' => $story->instagram_story_id,
-                        'is_geral' => $influencer->is_geral,
+                        'name'              => trim($influencer->nome),
+                        'instagramUser'     => $influencer->instagram,
+                        'pictureProfile'    => $influencer->img,
+                        'urlStory'          => $story->urlimg,
+                        'datePost'          => mysql_br_date_time($story->vinculadoem),
+                        'midiaType'         => $story->midia_type,
+                        'instagramStoryId'  => $story->instagram_story_id,
+                        'is_geral'          => $influencer->is_geral,
                     ]
                 );
             }
@@ -68,8 +68,8 @@ class StoryService
     public function approve($instagramStoryId)
     {
         try {
-            $update = array();
-            $update['aprovado'] = true;
+            $update                  = array();
+            $update['aprovado']      = true;
             $update['justificativa'] = null;
 
             if ($this->_request->get('influencerId')) {
@@ -78,18 +78,18 @@ class StoryService
 
             if ($this->_storyModel->where('instagram_story_id', '=', $instagramStoryId)->update($update)) {
                 return [
-                    'code' => 200,
+                    'code'    => 200,
                     'message' => 'Story aprovado!',
                 ];
             } else {
                 return [
-                    'code' => 404,
+                    'code'    => 404,
                     'message' => 'Erro ao tentar aprovar!',
                 ];
             }
         } catch (\Exception $ex) {
             return [
-                'code' => 400,
+                'code'    => 400,
                 'message' => $ex->getMessage(),
             ];
         }
@@ -105,18 +105,18 @@ class StoryService
                                     ])
             ) {
                 return [
-                    'code' => 200,
+                    'code'    => 200,
                     'message' => 'Story reprovado!',
                 ];
             } else {
                 return [
-                    'code' => 404,
+                    'code'    => 404,
                     'message' => 'Erro ao tentar reprovar!',
                 ];
             }
         } catch (\Exception $ex) {
             return [
-                'code' => 400,
+                'code'    => 400,
                 'message' => $ex->getMessage(),
             ];
         }
