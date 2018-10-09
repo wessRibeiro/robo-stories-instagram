@@ -62,6 +62,9 @@ class StoryService
         return $dataInfluencerHasStories;
     }
 
+    public function getInfluencers(){
+        return $this->_influencerModel->where('ativo', '=', 1)->get();
+    }
 
     public function approve($instagramStoryId)
     {

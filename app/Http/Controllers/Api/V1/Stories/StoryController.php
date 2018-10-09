@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Louder\Http\Controllers\Controller;
 use Louder\Services\Api\V1\StoryService;
-use Louder\Models\V1\Influencer;
 
 class StoryController extends Controller
 {
@@ -27,7 +26,7 @@ class StoryController extends Controller
             'code'        => 200,
             'message'     => 'Ok',
             'data'        => $this->_service->index(),
-            'influencers' => Influencer::setConnection($program)->where('ativo', '=', 1)->where('')->get()
+            'influencers' => $this->_service->getInfluencers()
         ];
 
         return response()->json($dados, $dados['code'])->withHeaders([
