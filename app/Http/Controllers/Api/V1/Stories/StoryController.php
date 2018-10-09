@@ -21,13 +21,13 @@ class StoryController extends Controller
         $this->_service = $service;
     }
 
-    function index()
+    function index($program)
     {
         $dados = [
             'code'        => 200,
             'message'     => 'Ok',
             'data'        => $this->_service->index(),
-            'influencers' => Influencer::where('ativo', '=', 1)->get()
+            'influencers' => Influencer::setConnection($program)->where('ativo', '=', 1)->where('')->get()
         ];
 
         return response()->json($dados, $dados['code'])->withHeaders([
