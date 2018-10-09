@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Story;
+use Illuminate\Support\Facades\Request;
 
 class StoryService
 {
@@ -65,14 +66,14 @@ class StoryService
         return $this->_influencerModel->where('ativo', '=', 1)->get();
     }
 
-    public function approve($instagramStoryId)
+    public function approve($instagramStoryId, Request $request)
     {
         try {
             $update                  = array();
             $update['aprovado']      = true;
             $update['justificativa'] = null;
-
-            if (Input::get('influencerId') != 0) {
+            dd($request);
+            if ($request->get('influencerId') != 0) {
                 $update['iduser'] = $this->_request->get('influencerId');
             }
 
