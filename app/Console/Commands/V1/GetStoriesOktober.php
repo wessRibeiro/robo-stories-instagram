@@ -149,12 +149,17 @@ class GetStoriesOktober extends Command
                             if(!$resultsInfluencerHasStory){
                                 $this->info("> Salvando Story de id:{$story['pk']}.");
                                 //verificando se o Story tem hashtag
+                                //verificando se o Story tem hashtag
                                 if(isset($story['story_hashtags']) || $influencer->is_geral) {
-                                    foreach ($story['story_hashtags'] as $hashtags){
-                                        //se hash Story está nas hashs do programa
-                                        if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags)) || $influencer->is_geral){
-                                            $this->temHashtagPrograma = true;
-                                            break;
+                                    if($influencer->is_geral){
+                                        $this->temHashtagPrograma = true;
+                                    }else{
+                                        foreach ($story['story_hashtags'] as $hashtags){
+                                            //se hash Story está nas hashs do programa
+                                            if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags) ) || $influencer->is_geral){
+                                                $this->temHashtagPrograma = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }

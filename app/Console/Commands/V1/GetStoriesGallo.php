@@ -2,9 +2,9 @@
 /**
  *
  * User: weslley ribeiro
- * Date: 24/08/2018
- * Time: 17:20
- * Description: Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)
+ * Date: 03/10/2018
+ * Time: 15:21
+ * Description: Get stories of SP Gallo influencers on instagram and save all on database (this job belongs to louder 1.0)
  */
 
 namespace Louder\Console\Commands\V1;
@@ -16,21 +16,21 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class GetStories extends Command
+class GetStoriesGallo extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'Instagram:V1.GetStories';
+    protected $signature = 'Instagram:V1.GetStoriesGallo';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
+    protected $description = 'Get stories of Gallo of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
     protected $endPointApi = 'http://api.storiesig.com/stories/';
     protected $pathS3;
@@ -49,7 +49,7 @@ class GetStories extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-        $this->pathS3   = "Stories/{$this->_carbon->format('Y')}/";
+        $this->pathS3   = "1/gallo/stories/{$this->_carbon->format('Y')}/";
         parent::__construct();
     }
 
@@ -61,7 +61,6 @@ class GetStories extends Command
     public function handle()
     {
         try {
-
             $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
             Log::info($this->signature, ['Inicio' => $start]);
             $this->info($start."\n");
@@ -69,19 +68,23 @@ class GetStories extends Command
              * @TODO relacionar foreach de programas com conexão
              * */
             $programs = DB::connection('louderhub')
-                             ->select("SELECT
-                                                *
-                                              FROM
-                                                programs
-                                              WHERE
-                                                name = 'missaoveja'");
+                          ->select("SELECT
+                                        *
+                                    FROM
+                                      programs
+                                    WHERE
+                                      name = 'gallo'"
+                                   );
+
             foreach ($programs as $program) {
-                $influencers = DB::select(' SELECT 
-                                                    * 
-                                                  FROM 
-                                                    Influencers 
-                                                  WHERE
-                                                    ativo = 1');
+                $influencers = DB::connection('gallo')
+                                 ->select('SELECT 
+                                            * 
+                                           FROM 
+                                            Influencers 
+                                           WHERE
+                                            ativo = 1');
+
                 //barra de progresso
                 $this->_progressBar = $this->output->createProgressBar(count($influencers));
                 $this->_progressBar->setFormat('verbose');
@@ -102,7 +105,7 @@ class GetStories extends Command
                         #nome
                         if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
                             $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateName = DB::update("UPDATE 
+                            $resultsUpdateName = DB::connection('gallo')->update("UPDATE 
                                                                     Influencers                                               
                                                                   SET
                                                                     nome      = '".trim($responseStories['user']['full_name'])."'
@@ -115,7 +118,7 @@ class GetStories extends Command
                         #img perfil
                         if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateInfluencer = DB::update("UPDATE 
+                            $resultsUpdateInfluencer = DB::connection('gallo')->update("UPDATE 
                                                                             Influencers 
                                                                           SET
                                                                             img       = '{$urlProfilePic}'
@@ -131,7 +134,7 @@ class GetStories extends Command
                         $this->info("\n------------------------------------------------\n");
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
-                            $resultsInfluencerHasStory = DB::select("SELECT
+                            $resultsInfluencerHasStory = DB::connection('gallo')->select("SELECT
                                                                                 * 
                                                                              FROM 
                                                                                 Historias 
@@ -147,15 +150,11 @@ class GetStories extends Command
                                 $this->info("> Salvando Story de id:{$story['pk']}.");
                                 //verificando se o Story tem hashtag
                                 if(isset($story['story_hashtags']) || $influencer->is_geral) {
-                                    if($influencer->is_geral){
-                                        $this->temHashtagPrograma = true;
-                                    }else{
-                                        foreach ($story['story_hashtags'] as $hashtags){
-                                            //se hash Story está nas hashs do programa
-                                            if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags) ) || $influencer->is_geral){
-                                                $this->temHashtagPrograma = true;
-                                                break;
-                                            }
+                                    foreach ($story['story_hashtags'] as $hashtags){
+                                        //se hash Story está nas hashs do programa
+                                        if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags)) || $influencer->is_geral){
+                                            $this->temHashtagPrograma = true;
+                                            break;
                                         }
                                     }
                                 }
@@ -173,7 +172,7 @@ class GetStories extends Command
                                             );
 
                                         }
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('gallo')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -192,7 +191,7 @@ class GetStories extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('gallo')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -222,7 +221,7 @@ class GetStories extends Command
                                                                            );
 
                                         }
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('gallo')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -241,7 +240,7 @@ class GetStories extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('gallo')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -310,7 +309,6 @@ class GetStories extends Command
             //sempre executara
             $this->alert("\n\nFim do processo :)\n\n");
         }
-
     }
 }
 
