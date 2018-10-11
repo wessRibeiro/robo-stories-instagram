@@ -30,7 +30,7 @@ class GetStoriesNissin extends Command
      *
      * @var string
      */
-    protected $description = 'Get stories of SP Nissin of influencers on instagram and save all on database (this job belongs to louder 1.0)';
+    protected $description = 'Get stories of Nissin of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
     protected $endPointApi = 'http://api.storiesig.com/stories/';
     protected $pathS3;

@@ -64,7 +64,7 @@ class MigrateStoriesToS3 extends Command
             $this->_progressBar->setEmptyBarCharacter(' ');
             foreach ($stories as $story) {
                 $this->info("\niniciando processo para o story: " . $story->urlimg);
-                $urlFinal = trim("https://s3.us-east-2.amazonaws.com/mylouder/1/nissin/stories/2018/{$story->urlimg}");
+                $urlFinal = trim("https://s3.us-east-2.amazonaws.com/mylouder/1/gallo/stories/2018/{$story->urlimg}");
 
                 $resultsUpdateUrl = DB::connection($this->argument('myConnection'))->update("UPDATE 
                                                             Historias                                               
