@@ -94,8 +94,8 @@ class GetStoriesGallo extends Command
                 //influenciadores
                 foreach ($influencers as $influencer) {
                     //tentando evitar quebra de requisição da api de terceiro
-                    sleep(20);
-                    $this->info("\niniciando processo para o influenciador:\nNome: " . $influencer->nome);
+                    sleep(30);
+                    $this->info("\niniciando processo para o influenciador:\nNome: {$influencer->nome} Hora: {$this->_carbon->format('d/m/Y H:i:s')}");
                     //consumindo api
                     $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
                     $responseStories = $this->_guzzle->get($this->endPointApi . $influencer->instagram);

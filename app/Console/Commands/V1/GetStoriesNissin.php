@@ -93,7 +93,9 @@ class GetStoriesNissin extends Command
 
                 //influenciadores
                 foreach ($influencers as $influencer) {
-                    $this->info("\niniciando processo para o influenciador:\nNome: " . $influencer->nome);
+                    //tentando evitar quebra de requisição da api de terceiro
+                    sleep(30);
+                    $this->info("\niniciando processo para o influenciador:\nNome: {$influencer->nome} Hora: {$this->_carbon->format('d/m/Y H:i:s')}");
                     //consumindo api
                     $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
                     $responseStories = $this->_guzzle->get($this->endPointApi . $influencer->instagram);
