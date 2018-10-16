@@ -91,7 +91,7 @@ class GetStories extends Command
                 //influenciadores
                 foreach ($influencers as $influencer) {
                     //tentando evitar quebra de requisição da api de terceiro
-                    sleep(30);
+                    sleep(10);
                     $this->info("\niniciando processo para o influenciador:\nNome: {$influencer->nome} Hora: {$this->_carbon->format('d/m/Y H:i:s')}");
                     //consumindo api
                     $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
@@ -134,15 +134,12 @@ class GetStories extends Command
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
                             $resultsInfluencerHasStory = DB::select("SELECT
-                                                                                * 
-                                                                             FROM 
-                                                                                Historias 
-                                                                             WHERE 
-                                                                                idUser = :influencers_id
-                                                                             AND 
-                                                                                instagram_story_id = :instagram_story_id",
+                                                                        * 
+                                                                     FROM 
+                                                                        Historias 
+                                                                     WHERE 
+                                                                        instagram_story_id = :instagram_story_id",
                                                                       [
-                                                                          'influencers_id'      => $influencer->id,
                                                                           'instagram_story_id' => $story['pk'],
                                                                       ]);
                             if(!$resultsInfluencerHasStory){
