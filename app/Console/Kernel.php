@@ -42,6 +42,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('Instagram:V1.GetStoriesNissin')
             ->hourlyAt(20)
             ->sendOutputTo('/var/www/log/mylouder/nissin/'.date('d_m_Y_H_m_s').'_robo_nissin.log');
+
+        $schedule->command('Instagram:V1.GetStoriesPassionclub')
+            ->hourlyAt(30)
+            ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('d_m_Y_H_m_s').'_robo_passionclub.log');
     }
 
     /**
