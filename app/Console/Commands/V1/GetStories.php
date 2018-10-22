@@ -87,11 +87,11 @@ class GetStories extends Command
                 $this->_progressBar->setFormat('verbose');
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
-
+                //aguardando 3 min para executar o consumo
+                sleep(180);
+                $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
-                    //tentando evitar quebra de requisição da api de terceiro
-                    sleep(10);
                     $this->info("\niniciando processo para o influenciador:\nNome: {$influencer->nome} Hora: {$this->_carbon->format('d/m/Y H:i:s')}");
                     //consumindo api
                     $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
@@ -275,7 +275,12 @@ class GetStories extends Command
                         $this->error('Usuario com visibilidade privada.');
                         continue;
                     }
-
+                    $cont++;
+                    if($cont >= 16){
+                        //esperando 3 min para consumir
+                        sleep(180);
+                        $cont = 0;
+                    }
                 }//foreach influencers
 
                 //finalizando process bar

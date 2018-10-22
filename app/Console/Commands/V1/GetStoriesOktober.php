@@ -90,7 +90,9 @@ class GetStoriesOktober extends Command
                 $this->_progressBar->setFormat('verbose');
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
-
+                //aguardando 3 min para executar o consumo
+                sleep(180);
+                $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
                     //tentando evitar quebra de requisição da api de terceiro
@@ -279,7 +281,12 @@ class GetStoriesOktober extends Command
                         $this->error('Usuario com visibilidade privada.');
                         continue;
                     }
-
+                    $cont++;
+                    if($cont >= 16){
+                        //esperando 3 min para consumir
+                        sleep(180);
+                        $cont = 0;
+                    }
                 }//foreach influencers
 
                 //finalizando process bar
