@@ -95,8 +95,6 @@ class GetStoriespassionclub extends Command
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
-                    //tentando evitar quebra de requisição da api de terceiro
-                    //sleep(5);
                     $this->info("\niniciando processo para o influenciador:\nNome: {$influencer->nome} Hora: {$this->_carbon->format('d/m/Y H:i:s')}");
                     //consumindo api
                     $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
