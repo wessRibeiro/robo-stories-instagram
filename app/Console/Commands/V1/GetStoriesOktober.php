@@ -38,6 +38,7 @@ class GetStoriesOktober extends Command
     protected $_carbon;
     protected $_progressBar;
     protected $temHashtagPrograma;
+    protected $oneMoreLastTime = true;
     protected $regexStories = '/([^*]*)(.*.jpg|.png|.jpeg|.gif|.mp4)/';
 
     /**
@@ -61,6 +62,7 @@ class GetStoriesOktober extends Command
     public function handle()
     {
         try {
+            startGoto:
             $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
             Log::info($this->signature, ['Inicio' => $start]);
             $this->info($start."\n");
@@ -281,8 +283,9 @@ class GetStoriesOktober extends Command
                     }
                     $cont++;
                     if($cont >= 16){
-                        //esperando 3 min para consumir
-                        sleep(180);
+                        $this->alert("\nrobo correu 15 influenciadores Esperando 5 min para requisitar novamente...");
+                        //esperando 5 min para consumir
+                        sleep(300);
                         $cont = 0;
                     }
                 }//foreach influencers
@@ -297,23 +300,28 @@ class GetStoriesOktober extends Command
                 $responseStories = (array)$responseStories;
             }
             $this->error($responseStories['message']);
-            $this->alert("\nEsperando 1 min para requisitar novamente...");
-
-        }catch (\GuzzleHttp\Exception\RequestException $ex){
-            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
-            $responseStories = json_decode($responseStoriesBodyAsString);
-            if( is_object($responseStories)) {
-                $responseStories = (array)$responseStories;
+            if(!$this->oneMoreLastTime){
+                $this->alert("Reiniciando...");
+                $this->oneMoreLastTime = true;
+                goto startGoto;
+            }else{
+                $this->alert("Fim do processo, depois de 2 tentativas :)");
+                exit();
             }
-            $this->error($responseStories['message']);
-            $this->alert("\nEsperando 1 min para requisitar novamente...");
-
+            goto startGoto;
         }catch (\Illuminate\Database\QueryException $ex){
             $this->error($ex->getMessage());
 
-        }catch (Exception $ex){
+        }catch (\Exception $ex){
             $this->error($ex->getMessage());
-
+            if(!$this->oneMoreLastTime){
+                $this->alert("Reiniciando...");
+                $this->oneMoreLastTime = true;
+                goto startGoto;
+            }else{
+                $this->alert("Fim do processo, depois de 2 tentativas :)");
+                exit();
+            }
         }finally{
             //sempre executara
             $this->alert("\n\nFim do processo :)\n\n");

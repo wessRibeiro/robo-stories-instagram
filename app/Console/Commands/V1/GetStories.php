@@ -30,14 +30,16 @@ class GetStories extends Command
      *
      * @var string
      */
-    protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
+    protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
     protected $endPointApi = 'http://api.storiesig.com/stories/';
     protected $pathS3;
     protected $_guzzle;
     protected $_carbon;
     protected $_progressBar;
+    protected $start;
     protected $temHashtagPrograma;
+    protected $oneMoreLastTime = false;
     protected $regexStories = '/([^*]*)(.*.jpg|.png|.jpeg|.gif|.mp4)/';
 
     /**
@@ -61,10 +63,10 @@ class GetStories extends Command
     public function handle()
     {
         try {
-
-            $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
-            Log::info($this->signature, ['Inicio' => $start]);
-            $this->info($start."\n");
+            startGoto:
+            $startProcess  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
+            Log::info($this->signature, ['Inicio' => $startProcess]);
+            $this->info($startProcess."\n");
             /*
              * @TODO relacionar foreach de programas com conexão
              * */
@@ -277,8 +279,9 @@ class GetStories extends Command
                     }
                     $cont++;
                     if($cont >= 16){
-                        //esperando 3 min para consumir
-                        sleep(180);
+                        $this->alert("robo correu 15 influenciadores Esperando 5 min para requisitar novamente...");
+                        //esperando 5 min para consumir
+                        sleep(300);
                         $cont = 0;
                     }
                 }//foreach influencers
@@ -287,36 +290,38 @@ class GetStories extends Command
                 $this->_progressBar->finish();
             }//foreach programs
         }catch (\GuzzleHttp\Exception\RequestException $ex){
-            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $responseStoriesBodyAsString = $ex->getMessage();
             $responseStories = json_decode($responseStoriesBodyAsString);
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
             }
             $this->error($responseStories['message']);
-            $this->alert("\nEsperando 1 min para requisitar novamente...");
-
-        }catch (\GuzzleHttp\Exception\RequestException $ex){
-            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
-            $responseStories = json_decode($responseStoriesBodyAsString);
-            if( is_object($responseStories)) {
-                $responseStories = (array)$responseStories;
+            if(!$this->oneMoreLastTime){
+                $this->alert("Reiniciando...");
+                $this->oneMoreLastTime = true;
+                goto startGoto;
+            }else{
+                $this->alert("Fim do processo, depois de 2 tentativas :)");
+                exit();
             }
-            $this->error($responseStories['message']);
-            $this->alert("\nEsperando 1 min para requisitar novamente...");
 
         }catch (\Illuminate\Database\QueryException $ex){
             $this->error($ex->getMessage());
 
-        }catch (Exception $ex){
+        }catch (\Exception $ex){
             $this->error($ex->getMessage());
-
+            if(!$this->oneMoreLastTime){
+                $this->alert("Reiniciando...");
+                $this->oneMoreLastTime = true;
+                goto startGoto;
+            }else{
+                $this->alert("Fim do processo, depois de 2 tentativas :)");
+                exit();
+            }
         }finally{
             //sempre executara
-            $this->alert("\n\nFim do processo :)\n\n");
+            $this->alert("Fim do processo :)");
         }
 
     }
 }
-
-
-
