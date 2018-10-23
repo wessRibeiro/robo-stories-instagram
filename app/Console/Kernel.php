@@ -27,24 +27,24 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('Instagram:V1.GetStories')
-                 ->hourlyAt(1)
+                 ->hourly()
                  ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_H_m_s').'_robo_instagram.log');
 
         $schedule->command('Instagram:V1.GetStoriesOktober')
-            ->hourlyAt(2)
+            ->hourly()
             ->sendOutputTo('/var/www/log/mylouder/oktoberfest/'.date('d_m_Y_H_m_s').'_robo_oktoberfest.log');
 
         $schedule->command('Instagram:V1.GetStoriesGallo')
-            ->hourlyAt(3)
+            ->hourly()
             ->sendOutputTo('/var/www/log/mylouder/gallo/'.date('d_m_Y_H_m_s').'_robo_gallo.log');
 
 
         $schedule->command('Instagram:V1.GetStoriesNissin')
-            ->hourlyAt(4)
+            ->hourly()
             ->sendOutputTo('/var/www/log/mylouder/nissin/'.date('d_m_Y_H_m_s').'_robo_nissin.log');
 
         $schedule->command('Instagram:V1.GetStoriesPassionclub')
-            ->hourlyAt(5)
+            ->hourly()
             ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('d_m_Y_H_m_s').'_robo_passionclub.log');
     }
 

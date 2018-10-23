@@ -61,6 +61,7 @@ class GetStoriespassionclub extends Command
     public function handle()
     {
         try {
+            inicio:
             $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
             Log::info($this->signature, ['Inicio' => $start]);
             $this->info($start."\n");
@@ -90,8 +91,8 @@ class GetStoriespassionclub extends Command
                 $this->_progressBar->setFormat('verbose');
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
-                //aguardando 3 min para executar o consumo
-                sleep(180);
+                //aguardando 8 min para executar o consumo
+                sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
@@ -291,14 +292,16 @@ class GetStoriespassionclub extends Command
                 $this->_progressBar->finish();
             }//foreach programs
         }catch (\GuzzleHttp\Exception\RequestException $ex){
-            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $responseStoriesBodyAsString = $ex->getMessage();
             $responseStories = json_decode($responseStoriesBodyAsString);
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
             }
             $this->error($responseStories['message']);
-            $this->alert("\nEsperando 1 min para requisitar novamente...");
-
+            $this->alert("\nEsperando 5 min para requisitar novamente...");
+            sleep(300);
+            $onemorelasttime = true;
+            goto start;
         }catch (\GuzzleHttp\Exception\RequestException $ex){
             $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
             $responseStories = json_decode($responseStoriesBodyAsString);
@@ -306,8 +309,10 @@ class GetStoriespassionclub extends Command
                 $responseStories = (array)$responseStories;
             }
             $this->error($responseStories['message']);
-            $this->alert("\nEsperando 1 min para requisitar novamente...");
-
+            $this->alert("\nEsperando 5 min para requisitar novamente...");
+            sleep(300);
+            $onemorelasttime = true;
+            goto start;
         }catch (\Illuminate\Database\QueryException $ex){
             $this->error($ex->getMessage());
 

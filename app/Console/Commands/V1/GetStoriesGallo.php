@@ -90,8 +90,8 @@ class GetStoriesGallo extends Command
                 $this->_progressBar->setFormat('verbose');
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
-                //aguardando 3 min para executar o consumo
-                sleep(180);
+                //aguardando 8 min para executar o consumo
+                sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
