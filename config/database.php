@@ -137,7 +137,7 @@ return [
             'strict'        => false,
             'engine'        => null,
         ],
-        'pregel' => [
+        'famigliapregel' => [
             'driver'        => 'mysql',
             'host'          => env('pregel_DB_HOST'),
             'port'          => env('pregel_DB_PORT', '3306'),
