@@ -16,21 +16,21 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class GetStoriespassionclub extends Command
+class GetStoriesPregel extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'Instagram:V1.GetStoriespassionclub';
+    protected $signature = 'Instagram:V1.GetStoriesPregel';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get stories of passionclub of influencers on instagram and save all on database (this job belongs to louder 1.0)';
+    protected $description = 'Get stories of Pregel of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
     protected $endPointApi = 'http://api.storiesig.com/stories/';
     protected $pathS3;
@@ -50,7 +50,7 @@ class GetStoriespassionclub extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-        $this->pathS3   = "1/passionclub/stories/{$this->_carbon->format('Y')}/";
+        $this->pathS3   = "1/pregel/stories/{$this->_carbon->format('Y')}/";
         parent::__construct();
     }
 
@@ -75,11 +75,11 @@ class GetStoriespassionclub extends Command
                                     FROM
                                       programs
                                     WHERE
-                                      name = 'passionclub'"
+                                      name = 'famigliapregel'"
                                    );
 
             foreach ($programs as $program) {
-                $influencers = DB::connection('passionclub')
+                $influencers = DB::connection('pregel')
                                  ->select('SELECT 
                                             * 
                                            FROM 
@@ -93,7 +93,7 @@ class GetStoriespassionclub extends Command
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
                 //aguardando 8 min para executar o consumo
-                sleep(480);
+                //sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
@@ -109,7 +109,7 @@ class GetStoriespassionclub extends Command
                         #nome
                         if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
                             $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateName = DB::connection('passionclub')->update("UPDATE 
+                            $resultsUpdateName = DB::connection('pregel')->update("UPDATE 
                                                                     Influencers                                               
                                                                   SET
                                                                     nome      = '".trim($responseStories['user']['full_name'])."'
@@ -122,7 +122,7 @@ class GetStoriespassionclub extends Command
                         #img perfil
                         if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateInfluencer = DB::connection('passionclub')->update("UPDATE 
+                            $resultsUpdateInfluencer = DB::connection('pregel')->update("UPDATE 
                                                                             Influencers 
                                                                           SET
                                                                             img       = '{$urlProfilePic}'
@@ -138,7 +138,7 @@ class GetStoriespassionclub extends Command
                         $this->info("\n------------------------------------------------\n");
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
-                            $resultsInfluencerHasStory = DB::connection('passionclub')->select("SELECT
+                            $resultsInfluencerHasStory = DB::connection('pregel')->select("SELECT
                                                                                 * 
                                                                              FROM 
                                                                                 Historias 
@@ -177,7 +177,7 @@ class GetStoriespassionclub extends Command
                                             );
 
                                         }
-                                        $resultsInsertStory = DB::connection('passionclub')->table('Historias')
+                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -196,7 +196,7 @@ class GetStoriespassionclub extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('passionclub')->table('Historias')
+                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -226,7 +226,7 @@ class GetStoriespassionclub extends Command
                                                                            );
 
                                         }
-                                        $resultsInsertStory = DB::connection('passionclub')->table('Historias')
+                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -245,7 +245,7 @@ class GetStoriespassionclub extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('passionclub')->table('Historias')
+                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
