@@ -16,14 +16,14 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class GetStoriesPregel extends Command
+class GetStoriesFamigliaPregel extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'Instagram:V1.GetStoriesPregel';
+    protected $signature = 'Instagram:V1.GetStoriesFamigliaPregel';
 
     /**
      * The console command description.
@@ -50,7 +50,7 @@ class GetStoriesPregel extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-        $this->pathS3   = "1/pregel/stories/{$this->_carbon->format('Y')}/";
+        $this->pathS3   = "1/famigliapregel/stories/{$this->_carbon->format('Y')}/";
         parent::__construct();
     }
 
@@ -79,7 +79,7 @@ class GetStoriesPregel extends Command
                                    );
 
             foreach ($programs as $program) {
-                $influencers = DB::connection('pregel')
+                $influencers = DB::connection('famigliapregel')
                                  ->select('SELECT 
                                             * 
                                            FROM 
@@ -109,7 +109,7 @@ class GetStoriesPregel extends Command
                         #nome
                         if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
                             $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateName = DB::connection('pregel')->update("UPDATE 
+                            $resultsUpdateName = DB::connection('famigliapregel')->update("UPDATE 
                                                                     Influencers                                               
                                                                   SET
                                                                     nome      = '".trim($responseStories['user']['full_name'])."'
@@ -122,7 +122,7 @@ class GetStoriesPregel extends Command
                         #img perfil
                         if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateInfluencer = DB::connection('pregel')->update("UPDATE 
+                            $resultsUpdateInfluencer = DB::connection('famigliapregel')->update("UPDATE 
                                                                             Influencers 
                                                                           SET
                                                                             img       = '{$urlProfilePic}'
@@ -138,7 +138,7 @@ class GetStoriesPregel extends Command
                         $this->info("\n------------------------------------------------\n");
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
-                            $resultsInfluencerHasStory = DB::connection('pregel')->select("SELECT
+                            $resultsInfluencerHasStory = DB::connection('famigliapregel')->select("SELECT
                                                                                 * 
                                                                              FROM 
                                                                                 Historias 
@@ -177,7 +177,7 @@ class GetStoriesPregel extends Command
                                             );
 
                                         }
-                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
+                                        $resultsInsertStory = DB::connection('famigliapregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -196,7 +196,7 @@ class GetStoriesPregel extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
+                                        $resultsInsertStory = DB::connection('famigliapregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -226,7 +226,7 @@ class GetStoriesPregel extends Command
                                                                            );
 
                                         }
-                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
+                                        $resultsInsertStory = DB::connection('famigliapregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -245,7 +245,7 @@ class GetStoriesPregel extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('pregel')->table('Historias')
+                                        $resultsInsertStory = DB::connection('famigliapregel')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
