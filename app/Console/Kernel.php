@@ -47,7 +47,7 @@ class Kernel extends ConsoleKernel
                  ->hourly()
                  ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('d_m_Y_H_m_s').'_robo_passionclub.log');
 
-        $schedule->command('Instagram:V1.GetStoriesPregel')
+        $schedule->command('Instagram:V1.GetStoriesFamigliaPregel')
                  ->hourly()
                  ->sendOutputTo('/var/www/log/mylouder/pregel/'.date('d_m_Y_H_m_s').'_robo_pregel.log');
     }
