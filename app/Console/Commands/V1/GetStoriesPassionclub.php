@@ -156,7 +156,7 @@ class GetStoriespassionclub extends Command
                                     }else{
                                         foreach ($story['story_hashtags'] as $hashtags){
                                             //se hash Story está nas hashs do programa
-                                            if(in_array($hashtags['hashtag']['name'], explode(',', $program->hashtags) ) || $influencer->is_geral){
+                                            if(in_array($hashtags['hashtag']['name'], explode(', ', $program->hashtags) ) || $influencer->is_geral){
                                                 $this->temHashtagPrograma = true;
                                                 break;
                                             }
