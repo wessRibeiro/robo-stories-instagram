@@ -2,9 +2,9 @@
 /**
  *
  * User: weslley ribeiro
- * Date: 03/10/2018
- * Time: 15:21
- * Description: Get stories of SP Oktoberfest influencers on instagram and save all on database (this job belongs to louder 1.0)
+ * Date: 24/08/2018
+ * Time: 17:20
+ * Description: Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)
  */
 
 namespace Louder\Console\Commands\V1;
@@ -16,29 +16,30 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class GetStoriesOktober extends Command
+class GetStoriesLouder extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'Instagram:V1.GetStoriesOktober';
+    protected $signature = 'Instagram:V1.GetStoriesLouder';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get stories of SP Oktober of influencers on instagram and save all on database (this job belongs to louder 1.0)';
 
+    protected $description = 'Get stories of influencers on instagram and save all on database (this job belongs to louder 1.0)';
     protected $endPointApi = 'http://api.storiesig.com/stories/';
     protected $pathS3;
     protected $_guzzle;
     protected $_carbon;
     protected $_progressBar;
+    protected $start;
     protected $temHashtagPrograma;
-    protected $oneMoreLastTime = true;
+    protected $oneMoreLastTime = false;
     protected $regexStories = '/([^*]*)(.*.jpg|.png|.jpeg|.gif|.mp4)/';
 
     /**
@@ -50,7 +51,7 @@ class GetStoriesOktober extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-        $this->pathS3   = "1/spoktoberfest/stories/{$this->_carbon->format('Y')}/";
+        $this->pathS3   = "Stories/{$this->_carbon->format('Y')}/";
         parent::__construct();
     }
 
@@ -63,37 +64,33 @@ class GetStoriesOktober extends Command
     {
         try {
             startGoto:
-            $start  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
-            Log::info($this->signature, ['Inicio' => $start]);
-            $this->info($start."\n");
+            $startProcess  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
+            Log::info($this->signature, ['Inicio' => $startProcess]);
+            $this->info($startProcess."\n");
             /*
              * @TODO relacionar foreach de programas com conexão
              * */
             $programs = DB::connection('louderhub')
-                          ->select("SELECT
-                                        *
-                                    FROM
-                                      programs
-                                    WHERE
-                                      name = 'spoktoberfest'"
-                                   );
-
+                ->select("SELECT
+                                                *
+                                              FROM
+                                                programs
+                                              WHERE
+                                                name = 'missaoveja'");
             foreach ($programs as $program) {
-                $influencers = DB::connection('spoktoberfest')
-                                 ->select('SELECT 
-                                            * 
-                                           FROM 
-                                            Influencers 
-                                           WHERE
-                                            ativo = 1');
-
+                $influencers = DB::select(' SELECT 
+                                                    * 
+                                                  FROM 
+                                                    Influencers 
+                                                  WHERE
+                                                    ativo = 1');
                 //barra de progresso
                 $this->_progressBar = $this->output->createProgressBar(count($influencers));
                 $this->_progressBar->setFormat('verbose');
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
                 //aguardando 8 min para executar o consumo
-                sleep(480);
+                //sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
@@ -109,7 +106,7 @@ class GetStoriesOktober extends Command
                         #nome
                         if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
                             $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateName = DB::connection('spoktoberfest')->update("UPDATE 
+                            $resultsUpdateName = DB::update("UPDATE 
                                                                     Influencers                                               
                                                                   SET
                                                                     nome      = '".trim($responseStories['user']['full_name'])."'
@@ -122,7 +119,7 @@ class GetStoriesOktober extends Command
                         #img perfil
                         if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateInfluencer = DB::connection('spoktoberfest')->update("UPDATE 
+                            $resultsUpdateInfluencer = DB::update("UPDATE 
                                                                             Influencers 
                                                                           SET
                                                                             img       = '{$urlProfilePic}'
@@ -138,18 +135,17 @@ class GetStoriesOktober extends Command
                         $this->info("\n------------------------------------------------\n");
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
-                            $resultsInfluencerHasStory = DB::connection('spoktoberfest')->select("SELECT
-                                                                                * 
-                                                                             FROM 
-                                                                                Historias 
-                                                                             WHERE 
-                                                                                instagram_story_id = :instagram_story_id",
-                                                                      [
-                                                                          'instagram_story_id' => $story['pk'],
-                                                                      ]);
+                            $resultsInfluencerHasStory = DB::select("SELECT
+                                                                        * 
+                                                                     FROM 
+                                                                        Historias 
+                                                                     WHERE 
+                                                                        instagram_story_id = :instagram_story_id",
+                                [
+                                    'instagram_story_id' => $story['pk'],
+                                ]);
                             if(!$resultsInfluencerHasStory){
                                 $this->info("> Salvando Story de id:{$story['pk']}.");
-                                //verificando se o Story tem hashtag
                                 //verificando se o Story tem hashtag
                                 if(isset($story['story_hashtags']) || $influencer->is_geral) {
                                     if($influencer->is_geral){
@@ -178,7 +174,7 @@ class GetStoriesOktober extends Command
                                             );
 
                                         }
-                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -197,7 +193,7 @@ class GetStoriesOktober extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -224,11 +220,10 @@ class GetStoriesOktober extends Command
                                         if(!Storage::disk('s3')->exists($pathStories)){
 
                                             Storage::disk('s3')->put($pathStories,
-                                                                            file_get_contents(end($story['video_versions'])['url'])
-                                                                           );
+                                                file_get_contents(end($story['video_versions'])['url'])
+                                            );
 
                                         }
-
                                         //frame do video
                                         $explodeUrlFrame  = explode('/', $story['image_versions2']['candidates'][2]['url']);
                                         $pathStoriesFrame = "{$this->pathS3}frames_videos/".pregString($this->regexStories, end($explodeUrlFrame));
@@ -241,7 +236,7 @@ class GetStoriesOktober extends Command
 
                                         }
 
-                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -261,7 +256,7 @@ class GetStoriesOktober extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::connection('spoktoberfest')->table('Historias')
+                                        $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -298,7 +293,7 @@ class GetStoriesOktober extends Command
                     }
                     $cont++;
                     if($cont >= 16){
-                        $this->alert("\nrobo correu 15 influenciadores Esperando 5 min para requisitar novamente...");
+                        $this->alert("robo correu 15 influenciadores Esperando 5 min para requisitar novamente...");
                         //esperando 5 min para consumir
                         sleep(300);
                         $cont = 0;
@@ -309,7 +304,7 @@ class GetStoriesOktober extends Command
                 $this->_progressBar->finish();
             }//foreach programs
         }catch (\GuzzleHttp\Exception\RequestException $ex){
-            $responseStoriesBodyAsString = $ex->getResponse()->getBody()->getContents();
+            $responseStoriesBodyAsString = $ex->getMessage();
             $responseStories = json_decode($responseStoriesBodyAsString);
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
@@ -323,7 +318,7 @@ class GetStoriesOktober extends Command
                 $this->alert("Fim do processo, depois de 2 tentativas :)");
                 exit();
             }
-            goto startGoto;
+
         }catch (\Illuminate\Database\QueryException $ex){
             $this->error($ex->getMessage());
 
@@ -339,10 +334,8 @@ class GetStoriesOktober extends Command
             }
         }finally{
             //sempre executara
-            $this->alert("\n\nFim do processo :)\n\n");
+            $this->alert("Fim do processo :)");
         }
+
     }
 }
-
-
-

@@ -216,6 +216,7 @@ class GetStories extends Command
                                     if($this->temHashtagPrograma){
                                         $explodeUrl = explode('/', end($story['video_versions'])['url']);
                                         $pathStories = pregString($this->regexStories, $this->pathS3.end($explodeUrl));
+                                        //video
                                         if(!Storage::disk('s3')->exists($pathStories)){
 
                                             Storage::disk('s3')->put($pathStories,
@@ -223,6 +224,18 @@ class GetStories extends Command
                                                                            );
 
                                         }
+                                        //frame do video
+                                        $explodeUrlFrame  = explode('/', $story['image_versions2']['candidates'][2]['url']);
+                                        $pathStoriesFrame = "{$this->pathS3}frames_videos/".pregString($this->regexStories, end($explodeUrlFrame));
+
+                                        if(!Storage::disk('s3')->exists($pathStoriesFrame)){
+
+                                            Storage::disk('s3')->put($pathStoriesFrame,
+                                                file_get_contents($story['image_versions2']['candidates'][2]['url'])
+                                            );
+
+                                        }
+
                                         $resultsInsertStory = DB::table('Historias')
                                             ->insert(
                                                 [
@@ -238,7 +251,8 @@ class GetStories extends Command
                                                     'pontos'                => 0,
                                                     'idUser'                => $influencer->id,
                                                     'midia_type'            => $story['media_type'],
-                                                    'instagram_story_id'   => $story['pk'],
+                                                    'instagram_story_id'    => $story['pk'],
+                                                    'image_video_url'       => Storage::disk('s3')->url($pathStoriesFrame),
                                                 ]
                                             );
                                     }else{

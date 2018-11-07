@@ -217,6 +217,7 @@ class GetStoriesFamigliaPregel extends Command
                                     }
                                 }elseif ($story['media_type'] == 2){#video
                                     if($this->temHashtagPrograma){
+                                        //video
                                         $explodeUrl = explode('/', end($story['video_versions'])['url']);
                                         $pathStories = pregString($this->regexStories, $this->pathS3.end($explodeUrl));
                                         if(!Storage::disk('s3')->exists($pathStories)){
@@ -224,6 +225,17 @@ class GetStoriesFamigliaPregel extends Command
                                             Storage::disk('s3')->put($pathStories,
                                                                             file_get_contents(end($story['video_versions'])['url'])
                                                                            );
+
+                                        }
+                                        //frame do video
+                                        $explodeUrlFrame  = explode('/', $story['image_versions2']['candidates'][2]['url']);
+                                        $pathStoriesFrame = "{$this->pathS3}frames_videos/".pregString($this->regexStories, end($explodeUrlFrame));
+
+                                        if(!Storage::disk('s3')->exists($pathStoriesFrame)){
+
+                                            Storage::disk('s3')->put($pathStoriesFrame,
+                                                file_get_contents($story['image_versions2']['candidates'][2]['url'])
+                                            );
 
                                         }
                                         $resultsInsertStory = DB::connection('famigliapregel')->table('Historias')
@@ -241,7 +253,8 @@ class GetStoriesFamigliaPregel extends Command
                                                     'pontos'                => 0,
                                                     'idUser'                => $influencer->id,
                                                     'midia_type'            => $story['media_type'],
-                                                    'instagram_story_id'   => $story['pk'],
+                                                    'instagram_story_id'    => $story['pk'],
+                                                    'image_video_url'       => Storage::disk('s3')->url($pathStoriesFrame),
                                                 ]
                                             );
                                     }else{
