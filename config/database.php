@@ -165,6 +165,21 @@ return [
             'strict'        => false,
             'engine'        => null,
         ],
+        //mesma que a de cima, logo isso ira embora
+        'lgg7representa' => [
+            'driver'        => 'mysql',
+            'host'          => env('lgg7_DB_HOST'),
+            'port'          => env('lgg7_DB_PORT', '3306'),
+            'database'      => env('lgg7_DB_DATABASE'),
+            'username'      => env('lgg7_DB_USERNAME', 'asenses'),
+            'password'      => env('lgg7_DB_PASSWORD', ''),
+            'unix_socket'   => env('lgg7_DB_SOCKET', ''),
+            'charset'       => 'utf8mb4',
+            'collation'     => 'utf8mb4_unicode_ci',
+            'prefix'        => '',
+            'strict'        => false,
+            'engine'        => null,
+        ],
         /*'pgsql' => [
             'driver'        => 'pgsql',
             'host'          => env('DB_HOST', '127.0.0.1'),
