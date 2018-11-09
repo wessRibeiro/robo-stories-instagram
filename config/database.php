@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'louderhub'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,7 +33,7 @@ return [
 
     'connections' => [
 
-        'sqlite' => [
+        /*'sqlite' => [
             'driver'    => 'sqlite',
             'database'  => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix'    => '',
@@ -52,7 +52,7 @@ return [
             'prefix'      => '',
             'strict'      => true,
             'engine'      => null,
-        ],
+        ],*/
         'missaoveja' => [
             'driver'        => 'mysql',
             'host'          => env('DB_HOST'),
@@ -165,7 +165,7 @@ return [
             'strict'        => false,
             'engine'        => null,
         ],
-        'pgsql' => [
+        /*'pgsql' => [
             'driver'        => 'pgsql',
             'host'          => env('DB_HOST', '127.0.0.1'),
             'port'          => env('DB_PORT', '5432'),
@@ -187,7 +187,7 @@ return [
             'password'      => env('DB_PASSWORD', ''),
             'charset'       => 'utf8',
             'prefix'        => '',
-        ],
+        ],*/
 
     ],
 
