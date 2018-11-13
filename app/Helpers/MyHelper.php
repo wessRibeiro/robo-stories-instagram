@@ -26,7 +26,7 @@ if (! function_exists('setConnectionsHub')) {
             $connection = DB::table('connections')->where('id', '=', $agency->connections_id)->first();
             $program->configurations = json_decode($program->configurations);
             config([
-                "database.connections.{$program->database_name}" => [
+                "database.connections.{$program->name}" => [
                     'driver'        => $program->configurations->database_configurations->driver,
                     'host'          => $connection->endpoint_server,
                     'username'      => $connection->user_server,

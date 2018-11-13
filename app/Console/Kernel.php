@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         \Louder\Console\Commands\V1\GetStoriesNissin::class,
         \Louder\Console\Commands\V1\GetStoriespassionclub::class,
         \Louder\Console\Commands\V1\GetStoriesFamigliaPregel::class,
+        \Louder\Console\Commands\V1\GetStoriesLouder::class,
     ];
 
     /**
@@ -47,6 +48,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('Instagram:V1.GetStoriesFamigliaPregel')
                  ->hourly()
                  ->sendOutputTo('/var/www/log/mylouder/pregel/'.date('d_m_Y_H_m_s').'_robo_pregel.log');
+
+        $schedule->command('Instagram:V1.GetStoriesLouder')
+                 ->hourly()
+                 ->sendOutputTo('/var/www/log/mylouder/louderbase/'.date('d_m_Y_H_m_s').'_robo_louderbase.log');
     }
 
     /**
