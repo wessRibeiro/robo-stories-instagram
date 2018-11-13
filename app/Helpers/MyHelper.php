@@ -7,6 +7,44 @@
  * Description: All functions to help
  */
 
+use Illuminate\Support\Facades\DB;
+
+
+if (! function_exists('setConnectionsHub')) {
+
+    /**
+     * User: weslley ribeiro
+     * Date: 12/11/2018
+     * Time: 15:56
+     * Description: insere no config.database, todas as conexões do louderHub
+     */
+    function setConnectionsHub(){
+        $programs = DB::select("SELECT * FROM programs");
+
+        foreach ($programs as $program){
+            $agency     = DB::table('agencies')->where("id", '=', $program->agency_id)->first();
+            $connection = DB::table('connections')->where('id', '=', $agency->connections_id)->first();
+            $program->configurations = json_decode($program->configurations);
+            config([
+                "database.connections.{$program->database_name}" => [
+                    'driver'        => $program->configurations->database_configurations->driver,
+                    'host'          => $connection->endpoint_server,
+                    'username'      => $connection->user_server,
+                    'password'      => $connection->password_server,
+                    'port'          => $program->configurations->database_configurations->port,
+                    'database'      => $program->database_name,
+                    'unix_socket'   => $program->configurations->database_configurations->unix_socket,
+                    'charset'       => $program->configurations->database_configurations->charset,
+                    'collation'     => $program->configurations->database_configurations->collation,
+                    'prefix'        => $program->configurations->database_configurations->prefix,
+                    'strict'        => $program->configurations->database_configurations->strict,
+                    'engine'        => $program->configurations->database_configurations->engine,
+                ]]);
+
+        }
+    }
+}
+
 if (! function_exists('money')) {
 
     function money($value = 0.00)

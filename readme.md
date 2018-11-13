@@ -14,3 +14,11 @@
 composer require nesbot/carbon
 composer require league/flysystem-aws-s3-v3
 ````
+
+### Lembretes do ambiente Louder 1.0
+````
+* setConnectionsHub() é uma função que se encontra no arquivo helper e é executada no 
+AppServiceProvider. Essa função busca todas as conexões no louderHub e insere todas
+em tempo de execução no config.database. Tornando .envs desnecessários e as conexões 
+cadastraveis
+````
