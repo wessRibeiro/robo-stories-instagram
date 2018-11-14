@@ -39,18 +39,20 @@ class GraphicFeedService
         $this->_request          = $request;
     }
 
-    public function index(){
+    public function index($program){
 
         $return['labels'] = mesesAcronimo();
 
         //dados do ano atual
-        $dateAnalytics = collect($this->_analyticsModel->where('data', '>=', $this->_carbon->format('Y'))
+        $dateAnalytics = collect($this->_analyticsModel->setConnection($program)
+                                                       ->where('data', '>=', $this->_carbon->format('Y'))
                                                        ->orderBy('data')
                                                        ->get()
                                  );
 
         //dados do ano atual stories
-        $dataStories = collect($this->_storyModel->where('vinculadoem', '>=', $this->_carbon->format('Y'))
+        $dataStories = collect($this->_storyModel->setConnection($program)
+                                                 ->where('vinculadoem', '>=', $this->_carbon->format('Y'))
                                                  ->where('temhashtag', '=', 1)
                                                  ->orderBy('vinculadoem')
                                                  ->get()

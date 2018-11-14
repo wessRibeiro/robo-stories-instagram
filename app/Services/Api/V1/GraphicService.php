@@ -8,8 +8,8 @@
 
 namespace Louder\Services\Api\V1;
 
+use Illuminate\Routing\Route;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\DB;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Analytics;
@@ -19,15 +19,15 @@ use Louder\Services\Api\V1\Graphics\GraphicWeeklyImpactService;
 
 class GraphicService
 {
+    protected $_route;
     protected $_influencerModel;
     protected $_graphicFeedService;
     protected $_graphicWeeklyImpactService;
     protected $_analyticsModel;
     protected $_storyModel;
-    protected $_router;
     protected $_request;
 
-    public function __construct(Router                      $router,
+    public function __construct(Route                      $route,
                                 Influencer                  $influencerModel,
                                 Story                       $storyModel,
                                 GraphicFeedService          $graphicFeedService,
@@ -35,13 +35,14 @@ class GraphicService
                                 Analytics                   $analyticsModel,
                                 Request                     $request)
     {
-        $this->_influencerModel             = $influencerModel;
-        $this->_storyModel                  = $storyModel;
+        $this->_route                       = $route;
+        $this->_influencerModel             = $influencerModel->setConnection($this->_route->parameter('program'));
+        $this->_storyModel                  = $storyModel->setConnection($this->_route->parameter('program'));
         $this->_graphicFeedService          = $graphicFeedService;
         $this->_graphicWeeklyImpactService  = $graphicWeeklyImpactService;
-        $this->_analyticsModel              = $analyticsModel;
-        $this->_router                      = $router;
+        $this->_analyticsModel              = $analyticsModel->setConnection($this->_route->parameter('program'));
         $this->_request                     = $request;
+
     }
 
     public function index(){
@@ -64,14 +65,18 @@ class GraphicService
         $universe["universePercent"] = number_format(($universe['sumPostsHashtag']*100)/$universe["universeHashtag"], 2,',','.')."%";
         $universe['totalFollowers']  = collect();
 
-        foreach ($this->_influencerModel->all() as $influencer){
+        foreach ($this->_influencerModel->where('ativo', true)->get() as $influencer){
             $universe['totalFollowers']->push($influencer->profile->followed_by);
         }
+
+
+
+
         $universe['totalFollowers']  = $universe['totalFollowers']->sum();
         $universe['engagement']      = round(($universe['sumLikesHashtag'] + $universe['sumCommentsHashtag'])/$universe['totalFollowers'], 2)."%";
         $universe['impact']          = round((($universe['sumPostsHashtag'] * $universe['totalFollowers']) * 4)/100,0 );
 
-        $sqlTop5Influencers = 'SELECT 	
+        $sqlTop5Influencers = 'SELECT
                                     per.idInfluencer,
                                     per.profile_pic_url_hd  imagem_usuario,
                                     per.full_name           nome_completo,
@@ -81,29 +86,30 @@ class GraphicService
                                     SUM(p.likes)            num_likes,
                                     SUM(p.comentarios)      num_comentarios,
                                     (SUM(p.likes) + SUM(p.comentarios) + Count(p.id)) total
-                                FROM 
+                                FROM
                                     Perfis per
-                                LEFT JOIN 
+                                LEFT JOIN
                                     Posts p
-                                ON 
+                                ON
                                     p.owner_id = per.idInfluencer
-                                LEFT JOIN 
+                                LEFT JOIN
                                     Posts_Curadoria pc
-                                ON 
+                                ON
                                     pc.idPost = p.code
-                                WHERE 
+                                WHERE
                                     pc.aprovado = 1
-                                GROUP BY 
+                                GROUP BY
                                     per.idInfluencer
-                                ORDER BY 
-                                    total 
+                                ORDER BY
+                                    total
                                 DESC
                                 LIMIT 5';
 
-        $resultTop5Influencers = DB::select(DB::raw($sqlTop5Influencers));
+        $resultTop5Influencers = DB::connection($this->_route->parameter('program'))
+                                     ->select(DB::connection($this->_route->parameter('program'))->raw($sqlTop5Influencers));
         $universe['top5Influencers'] = json_decode(json_encode($resultTop5Influencers), true);
 
-        $sqlTop5Ranking = 'SELECT 
+        $sqlTop5Ranking = 'SELECT
                               per.id,
                               per.profile_pic_url imagem,
                               per.username,
@@ -123,25 +129,28 @@ class GraphicService
                              SUM(p.comentarios) comentarios,
                             (SELECT COUNT(inf.id) FROM Influencers inf WHERE inf.ativo = "1") total_influencers,
                                   IFNULL((SELECT COUNT(h.id) FROM Historias h WHERE temhashtag = 1 AND h.iduser = (SELECT i.id FROM Influencers i WHERE i.instagram = per.username) ),0) historias
-            
-                        FROM 
+
+                        FROM
                           Posts_Curadoria pc
-                        JOIN 
+                        JOIN
                           Posts p ON p.code = pc.idPost
-                        JOIN 
+                        JOIN
                           Perfis per ON per.idInfluencer = p.owner_id
-                        WHERE 
+                        WHERE
                           pc.aprovado = "1"
-                        GROUP BY 
+                        GROUP BY
                           p.owner_id , per.profile_pic_url , per.username , per.full_name
                         ORDER BY pontos DESC
                           LIMIT 5';
 
-        $resultTop5Ranking = DB::select(DB::raw($sqlTop5Ranking));
+        $resultTop5Ranking = DB::connection($this->_route->parameter('program'))
+                             ->select(DB::connection($this->_route->parameter('program'))->raw($sqlTop5Ranking));
+
         $universe['top5Ranking'] = json_decode(json_encode($resultTop5Ranking), true);
-        $universe['graphics']['feed'] = $this->_graphicFeedService->index();
-        $universe['graphics']['weeklyImpact'] = $this->_graphicWeeklyImpactService->index();
+        $universe['graphics']['feed'] = $this->_graphicFeedService->index($this->_route->parameter('program'));
+        $universe['graphics']['weeklyImpact'] = $this->_graphicWeeklyImpactService->index($this->_route->parameter('program'));
 
         return $universe;
+        
     }
 }

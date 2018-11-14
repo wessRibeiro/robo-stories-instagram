@@ -40,7 +40,7 @@ class GraphicWeeklyImpactService
         $this->_request                     = $request;
     }
 
-    public function index($qtd = 7){
+    public function index($program, $qtd = 7){
         
         $dateTarget = date('Y-m-d', strtotime("-" . ($qtd - 1) . " day"));
         $dateNow = date('Y-m-d');
@@ -49,11 +49,14 @@ class GraphicWeeklyImpactService
         $seguidoresTemp = 0;
 
 
-        $seguidores = collect($this->_analyticsInfluencerModel->select(DB::raw('data, SUM(seguidores) as seguidores'))
+        $seguidores = collect($this->_analyticsInfluencerModel->setConnection($program)
+                                                              ->select(DB::connection($program)->raw('data, SUM(seguidores) as seguidores'))
                                                               ->groupBy('data')
                                                               ->pluck('seguidores', 'data'));
                                                                 
-        $posts = collect($this->_analyticsModel->select(DB::raw('data, SUM(postsHashtag) as postsHashtag'))
+        $posts = collect($this->_analyticsModel->setConnection($program)
+                                               ->select(DB::connection($program)
+                                               ->raw('data, SUM(postsHashtag) as postsHashtag'))
                                                ->where('postsHashtag', '>', '0')
                                                ->groupBy('data')
                                                ->pluck('postsHashtag', 'data'));
