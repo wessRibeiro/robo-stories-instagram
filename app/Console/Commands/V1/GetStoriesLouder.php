@@ -102,7 +102,7 @@ class GetStoriesLouder extends Command
                         $this->info("\n");
                         $this->alert("> iniciando processo para o programa: '{$program->name}', aguarde 8 min");
                         //aguardando 8 min para executar o consumo
-                        //sleep(480);
+                        sleep(480);
                         $cont = 0;
                         //influenciadores
                         foreach ($influencers as $influencer) {
