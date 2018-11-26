@@ -51,7 +51,7 @@ class GetStoriesLouder extends Command
     {
         $this->_guzzle	= $guzzle;
         $this->_carbon	= $carbon;
-        $this->pathS3   = "stories/{$this->_carbon->format('Y')}/";
+        $this->pathS3  = "";
         parent::__construct();
     }
 
@@ -85,7 +85,7 @@ class GetStoriesLouder extends Command
                        $configurations->curatorship->robo_stories_enable) {
 
                         //configurando pasta S3 para o programa tratado
-                        $this->pathS3 = "{$program->agency_id}/{$program->name}/{$this->pathS3}";
+                        $this->pathS3 = "{$program->agency_id}/{$program->name}/stories/{$this->_carbon->format('Y')}/";
 
                         $influencers = DB::connection($program->name)->select(' SELECT 
                                                             * 
@@ -102,7 +102,7 @@ class GetStoriesLouder extends Command
                         $this->info("\n");
                         $this->alert("> iniciando processo para o programa: '{$program->name}', aguarde 8 min");
                         //aguardando 8 min para executar o consumo
-                        sleep(480);
+                        //sleep(480);
                         $cont = 0;
                         //influenciadores
                         foreach ($influencers as $influencer) {
