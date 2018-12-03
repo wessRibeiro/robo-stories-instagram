@@ -44,7 +44,7 @@ class GraphicService
         $this->_graphicFeedService          = $graphicFeedService;
         $this->_graphicWeeklyImpactService  = $graphicWeeklyImpactService;
         $this->_analyticsModel              = $analyticsModel->setConnection($this->_route->parameter('program'));
-        $this->_postsCuradoriaModel         = $postsCuradoriaModel;
+        $this->_postsCuradoriaModel         = $postsCuradoriaModel->setConnection($this->_route->parameter('program'));
         $this->_request                     = $request;
 
     }
