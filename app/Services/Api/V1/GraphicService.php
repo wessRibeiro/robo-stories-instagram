@@ -29,7 +29,7 @@ class GraphicService
     protected $_storyModel;
     protected $_request;
 
-    public function __construct(Route                      $route,
+    public function __construct(Route                       $route,
                                 Influencer                  $influencerModel,
                                 Story                       $storyModel,
                                 GraphicFeedService          $graphicFeedService,
@@ -44,7 +44,7 @@ class GraphicService
         $this->_graphicFeedService          = $graphicFeedService;
         $this->_graphicWeeklyImpactService  = $graphicWeeklyImpactService;
         $this->_analyticsModel              = $analyticsModel->setConnection($this->_route->parameter('program'));
-        $this->_postsCuradoriaModel         = $postsCuradoriaModel;
+        $this->_postsCuradoriaModel         = $postsCuradoriaModel->setConnection($this->_route->parameter('program'));
         $this->_request                     = $request;
 
     }
