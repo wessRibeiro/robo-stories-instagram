@@ -54,7 +54,7 @@ class GraphicService
             'totalActiveInfluencers'    => $this->_influencerModel->where('ativo', true)->count(),
             'totalStoriesHashtag'       => $this->_storyModel->where('temhashtag', true)->count(),
             'sumPostsHashtag'           => $this->_postsCuradoriaModel->where('aprovado', true)->count(),
-            'sumPostsCuradoria'         => $this->_postsCuradoriaModel->select('*')->count(),
+            'sumPostsCuradoria'         => $this->_postsCuradoriaModel->select('id')->count(),
             'sumLikesToday'             => collect($this->_analyticsModel->pluck('likesHoje'))->sum(),
             'sumPostsToday'             => collect($this->_analyticsModel->pluck('postsHoje'))->sum(),
             'sumCommentsToday'          => collect($this->_analyticsModel->pluck('comentariosHoje'))->sum(),
