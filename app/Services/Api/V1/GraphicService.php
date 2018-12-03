@@ -63,10 +63,10 @@ class GraphicService
             'sumPostsCuradoria'         => collect($this->_postsCuradoriaModel->select('*'))->count(),
         ];
 
-        $universe['postsPercent']    = number_format(($universe['sumPostsHashtag']*100)/$universe['sumPostsToday'], 2,',','.')."%";
+        $universe['postsPercent']    = number_format(($universe['sumPostsCuradoria']*100)/$universe['sumPostsToday'], 2,',','.')."%";
         $universe['commentsPercent'] = number_format(($universe['sumCommentsHashtag']*100)/$universe['sumCommentsToday'], 2,',','.')."%";
         $universe["likesPercent"]    = number_format(($universe['sumLikesHashtag']*100)/$universe['sumLikesToday'], 2,',','.')."%";
-        $universe["universePercent"] = number_format(($universe['sumPostsHashtag']*100)/$universe["universeHashtag"], 2,',','.')."%";
+        $universe["universePercent"] = number_format(($universe['sumPostsCuradoria']*100)/$universe["universeHashtag"], 2,',','.')."%";
         $universe['totalFollowers']  = collect();
 
         foreach ($this->_influencerModel->where('ativo', true)->get() as $influencer){
