@@ -53,14 +53,14 @@ class GraphicService
         $universe = [
             'totalActiveInfluencers'    => $this->_influencerModel->where('ativo', true)->count(),
             'totalStoriesHashtag'       => $this->_storyModel->where('temhashtag', true)->count(),
+            'sumPostsHashtag'           => $this->_postsCuradoriaModel->where('aprovado', true)->count(),
+            'sumPostsCuradoria'         => $this->_postsCuradoriaModel->select('*')->count(),
             'sumLikesToday'             => collect($this->_analyticsModel->pluck('likesHoje'))->sum(),
             'sumPostsToday'             => collect($this->_analyticsModel->pluck('postsHoje'))->sum(),
             'sumCommentsToday'          => collect($this->_analyticsModel->pluck('comentariosHoje'))->sum(),
             'sumLikesHashtag'           => collect($this->_analyticsModel->pluck('likesHashtag'))->sum(),
             'sumCommentsHashtag'        => collect($this->_analyticsModel->pluck('comentariosHashtag'))->sum(),
             'universeHashtag'           => collect($this->_analyticsModel->pluck('universoHashtag'))->pop(),
-            'sumPostsHashtag'           => $this->_postsCuradoriaModel->where('aprovado', '=', 1)->count(),
-            'sumPostsCuradoria'         => $this->_postsCuradoriaModel->select('*')->count(),
         ];
 
         $universe['postsPercent']    = number_format(($universe['sumPostsCuradoria']*100)/$universe['sumPostsToday'], 2,',','.')."%";
