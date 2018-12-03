@@ -60,7 +60,7 @@ class GraphicService
             'sumCommentsHashtag'        => collect($this->_analyticsModel->pluck('comentariosHashtag'))->sum(),
             'universeHashtag'           => collect($this->_analyticsModel->pluck('universoHashtag'))->pop(),
             'sumPostsHashtag'           => collect($this->_postsCuradoriaModel->where('aprovado', '=', 1))->count(),
-            'sumPostsCuradoria'         => collect($this->_postsCuradoriaModel->all())->count(),
+            'sumPostsCuradoria'         => collect($this->_postsCuradoriaModel->select('*'))->count(),
         ];
 
         $universe['postsPercent']    = number_format(($universe['sumPostsHashtag']*100)/$universe['sumPostsToday'], 2,',','.')."%";
