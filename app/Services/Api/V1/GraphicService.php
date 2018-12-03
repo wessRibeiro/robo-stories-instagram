@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Analytics;
+use Louder\Models\V1\PostsCuradoria;
 use Louder\Models\V1\Story;
 use Louder\Services\Api\V1\Graphics\GraphicFeedService;
 use Louder\Services\Api\V1\Graphics\GraphicWeeklyImpactService;
@@ -24,6 +25,7 @@ class GraphicService
     protected $_graphicFeedService;
     protected $_graphicWeeklyImpactService;
     protected $_analyticsModel;
+    protected $_postsCuradoriaModel;
     protected $_storyModel;
     protected $_request;
 
@@ -33,6 +35,7 @@ class GraphicService
                                 GraphicFeedService          $graphicFeedService,
                                 GraphicWeeklyImpactService  $graphicWeeklyImpactService,
                                 Analytics                   $analyticsModel,
+                                PostsCuradoria              $postsCuradoriaModel,
                                 Request                     $request)
     {
         $this->_route                       = $route;
@@ -41,6 +44,7 @@ class GraphicService
         $this->_graphicFeedService          = $graphicFeedService;
         $this->_graphicWeeklyImpactService  = $graphicWeeklyImpactService;
         $this->_analyticsModel              = $analyticsModel->setConnection($this->_route->parameter('program'));
+        $this->_postsCuradoriaModel         = $postsCuradoriaModel->setConnection($this->_route->parameter('program'));
         $this->_request                     = $request;
 
     }
@@ -53,10 +57,10 @@ class GraphicService
             'sumPostsToday'             => collect($this->_analyticsModel->pluck('postsHoje'))->sum(),
             'sumCommentsToday'          => collect($this->_analyticsModel->pluck('comentariosHoje'))->sum(),
             'sumLikesHashtag'           => collect($this->_analyticsModel->pluck('likesHashtag'))->sum(),
-            'sumPostsHashtag'           => collect($this->_analyticsModel->pluck('postsHashtag'))->sum(),
             'sumCommentsHashtag'        => collect($this->_analyticsModel->pluck('comentariosHashtag'))->sum(),
             'universeHashtag'           => collect($this->_analyticsModel->pluck('universoHashtag'))->pop(),
-
+            'sumPostsHashtag'           => collect($this->_postsCuradoriaModel->where('aprovado', '=', 1))->count(),
+            'sumPostsCuradoria'         => collect($this->_postsCuradoriaModel->all())->count(),
         ];
 
         $universe['postsPercent']    = number_format(($universe['sumPostsHashtag']*100)/$universe['sumPostsToday'], 2,',','.')."%";
