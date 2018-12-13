@@ -59,6 +59,7 @@ class GetStoriesLouder extends Command
      * Execute the console command.
      *
      * @return mixed
+
      */
     public function handle()
     {
@@ -75,6 +76,7 @@ class GetStoriesLouder extends Command
                               FROM
                                 programs
                              ");
+
                 foreach ($programs as $program) {
 
                     //obtendo configurações do programa
@@ -101,6 +103,10 @@ class GetStoriesLouder extends Command
 
                         $this->info("\n");
                         $this->alert("> iniciando processo para o programa: '{$program->name}', aguarde 8 min");
+                        //se vai baixar todos os posts sem considerar hashtags
+                        if(!$configurations->curatorship->only_with_hashtag){
+                            $this->alert("> programa: '{$program->name}', baixa sem hashtag");
+                        }
                         //aguardando 8 min para executar o consumo
                         sleep(480);
                         $cont = 0;
@@ -159,8 +165,11 @@ class GetStoriesLouder extends Command
                                     if (!$resultsInfluencerHasStory) {
                                         $this->info("> Salvando Story de id:{$story['pk']}.");
                                         //verificando se o Story tem hashtag
-                                        if (isset($story['story_hashtags']) || $influencer->is_geral) {
-                                            if ($influencer->is_geral) {
+                                        if (isset($story['story_hashtags']) ||
+                                            $influencer->is_geral           ||
+                                            !$configurations->curatorship->only_with_hashtag
+                                            ){
+                                            if ($influencer->is_geral || !$configurations->curatorship->only_with_hashtag) {
                                                 $this->temHashtagPrograma = true;
                                             } else {
                                                 foreach ($story['story_hashtags'] as $hashtags) {
