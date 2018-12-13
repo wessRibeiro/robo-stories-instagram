@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Analytics;
+use Louder\Models\V1\PostsCuradoria;
 use Louder\Models\V1\Story;
 use Louder\Services\Api\V1\Graphics\GraphicFeedService;
 use Louder\Services\Api\V1\Graphics\GraphicWeeklyImpactService;
@@ -24,15 +25,17 @@ class GraphicService
     protected $_graphicFeedService;
     protected $_graphicWeeklyImpactService;
     protected $_analyticsModel;
+    protected $_postsCuradoriaModel;
     protected $_storyModel;
     protected $_request;
 
-    public function __construct(Route                      $route,
+    public function __construct(Route                       $route,
                                 Influencer                  $influencerModel,
                                 Story                       $storyModel,
                                 GraphicFeedService          $graphicFeedService,
                                 GraphicWeeklyImpactService  $graphicWeeklyImpactService,
                                 Analytics                   $analyticsModel,
+                                PostsCuradoria              $postsCuradoriaModel,
                                 Request                     $request)
     {
         $this->_route                       = $route;
@@ -41,6 +44,7 @@ class GraphicService
         $this->_graphicFeedService          = $graphicFeedService;
         $this->_graphicWeeklyImpactService  = $graphicWeeklyImpactService;
         $this->_analyticsModel              = $analyticsModel->setConnection($this->_route->parameter('program'));
+        $this->_postsCuradoriaModel         = $postsCuradoriaModel->setConnection($this->_route->parameter('program'));
         $this->_request                     = $request;
 
     }
@@ -49,20 +53,20 @@ class GraphicService
         $universe = [
             'totalActiveInfluencers'    => $this->_influencerModel->where('ativo', true)->count(),
             'totalStoriesHashtag'       => $this->_storyModel->where('temhashtag', true)->count(),
+            'sumPostsHashtag'           => $this->_postsCuradoriaModel->select('id')->where('aprovado', true)->count(),
+            'sumPostsCuradoria'         => $this->_postsCuradoriaModel->select('id')->count(),
             'sumLikesToday'             => collect($this->_analyticsModel->pluck('likesHoje'))->sum(),
             'sumPostsToday'             => collect($this->_analyticsModel->pluck('postsHoje'))->sum(),
             'sumCommentsToday'          => collect($this->_analyticsModel->pluck('comentariosHoje'))->sum(),
             'sumLikesHashtag'           => collect($this->_analyticsModel->pluck('likesHashtag'))->sum(),
-            'sumPostsHashtag'           => collect($this->_analyticsModel->pluck('postsHashtag'))->sum(),
             'sumCommentsHashtag'        => collect($this->_analyticsModel->pluck('comentariosHashtag'))->sum(),
             'universeHashtag'           => collect($this->_analyticsModel->pluck('universoHashtag'))->pop(),
-
         ];
 
-        $universe['postsPercent']    = number_format(($universe['sumPostsHashtag']*100)/$universe['sumPostsToday'], 2,',','.')."%";
+        $universe['postsPercent']    = number_format(($universe['sumPostsCuradoria']*100)/$universe['sumPostsToday'], 2,',','.')."%";
         $universe['commentsPercent'] = number_format(($universe['sumCommentsHashtag']*100)/$universe['sumCommentsToday'], 2,',','.')."%";
         $universe["likesPercent"]    = number_format(($universe['sumLikesHashtag']*100)/$universe['sumLikesToday'], 2,',','.')."%";
-        $universe["universePercent"] = number_format(($universe['sumPostsHashtag']*100)/$universe["universeHashtag"], 2,',','.')."%";
+        $universe["universePercent"] = number_format(($universe['sumPostsCuradoria']*100)/$universe["universeHashtag"], 2,',','.')."%";
         $universe['totalFollowers']  = collect();
 
         foreach ($this->_influencerModel->where('ativo', true)->get() as $influencer){
