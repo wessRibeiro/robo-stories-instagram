@@ -35,9 +35,9 @@ class StoryController extends Controller
         ]);
     }
 
-    public function approve($program, $instagramStoryId)
+    public function approve($program, $instagramStoryId, $missao = 0)
     {
-        $apiResponse = $this->_service->approve($instagramStoryId);
+        $apiResponse = $this->_service->approve($instagramStoryId, $missao);
         return response()->json($apiResponse, $apiResponse['code'])->withHeaders([
             'Content-Type'  => 'application/json; charset=utf-8',
             'Cache-Control' => 'public'
@@ -47,11 +47,10 @@ class StoryController extends Controller
     public function disapprove($program, $instagramStoryId)
     {
         $apiResponse = $this->_service->disapprove($instagramStoryId);
-        return response()->json($apiResponse, $apiResponse['code'])
-                         ->withHeaders([
-                                            'Content-Type'  => 'application/json; charset=utf-8',
-                                            'Cache-Control' => 'public'
-                                       ]);
+        return response()->json($apiResponse, $apiResponse['code'])->withHeaders([
+            'Content-Type'  => 'application/json; charset=utf-8',
+            'Cache-Control' => 'public'
+        ]);
     }
 
 }

@@ -4,7 +4,7 @@ namespace Louder\Models\V1;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PostsCuradoria extends Model
+class Missoes extends Model
 {
-    protected $table = 'Posts_Curadoria';
+    protected $table = 'Missoes';
 }

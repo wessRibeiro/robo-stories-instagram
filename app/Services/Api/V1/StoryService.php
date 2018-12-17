@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Louder\Models\V1\Influencer;
 use Louder\Models\V1\Story;
+use Louder\Models\V1\Missoes;
 
 class StoryService
 {
@@ -23,12 +24,14 @@ class StoryService
     public function __construct(Route           $route,
                                 Influencer      $influencerModel,
                                 Story           $storyModel,
+                                Missoes         $missoesModel,
                                 Request         $request)
     {
-        $this->_route = $route;
-        $this->_request = $request;
+        $this->_route           = $route;
+        $this->_request         = $request;
         $this->_influencerModel = $influencerModel->setConnection($this->_route->parameter('program'));
-        $this->_storyModel = $storyModel->setConnection($this->_route->parameter('program'));
+        $this->_storyModel      = $storyModel->setConnection($this->_route->parameter('program'));
+        $this->_missoesModel    = $missoesModel->setConnection($this->_route->parameter('program'));
     }
 
     public function index()
@@ -65,12 +68,20 @@ class StoryService
         return $this->_influencerModel->where('ativo', '=', 1)->get();
     }
 
-    public function approve($instagramStoryId)
+    public function approve($instagramStoryId, $missao)
     {
         try {
+            if(!empty($missao)){
+                $pontos = current($this->_missoesModel->select('pontos_instagram')->where('id', '=', $missao)->get()->toArray())['pontos_instagram'];
+            } else {
+                $pontos = 0;
+            }
+
             $update                  = array();
             $update['aprovado']      = 1;
             $update['justificativa'] = null;
+            $update['pontos']        = $pontos;
+
             
             if ($this->_request->get('influencerId') != 0) {
                 $update['iduser'] = $this->_request->get('influencerId');

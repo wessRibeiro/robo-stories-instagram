@@ -62,7 +62,7 @@ Route::group(['prefix' => 'v1'], function() {
                 'as' => 'stories',
                 'uses' => 'Api\V1\Stories\StoryController@index'
             ]);
-            Route::patch('/{instagramStoryId}/approving', [
+            Route::patch('/{instagramStoryId}/approving/{missao}', [
                 'as' => 'stories.approve',
                 'uses' => 'Api\V1\Stories\StoryController@approve'
             ]);
