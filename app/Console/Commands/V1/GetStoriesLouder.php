@@ -115,7 +115,7 @@ class GetStoriesLouder extends Command
                             $this->info("\niniciando processo para o influenciador:\nNome: {$influencer->nome} Hora: {$this->_carbon->format('d/m/Y H:i:s')}");
                             //consumindo api
                             $this->info("Url: {$this->endPointApi}{$influencer->instagram}");
-                            $responseStories = $this->_guzzle->get($this->endPointApi . $influencer->instagram);
+                            $responseStories = $this->_guzzle->get(trim($this->endPointApi . $influencer->instagram));
                             $responseStories = json_decode($responseStories->getBody(), true);
                             //verificando se é user privado
                             if (!$responseStories['user']['is_private']) {
@@ -332,11 +332,11 @@ class GetStoriesLouder extends Command
             //fim goto
         }catch (\GuzzleHttp\Exception\RequestException $ex){
             $responseStoriesBodyAsString = $ex->getMessage();
-            $responseStories = json_decode($responseStoriesBodyAsString);
+            /*$responseStories = json_decode($responseStoriesBodyAsString);
             if( is_object($responseStories)) {
                 $responseStories = (array)$responseStories;
-            }
-            $this->error($responseStories['message']);
+            }*/
+            $this->error($ex->getMessage());
             if(!$this->oneMoreLastTime){
                 $this->alert("Reiniciando...");
                 $this->oneMoreLastTime = true;
@@ -350,7 +350,7 @@ class GetStoriesLouder extends Command
             $this->error($ex->getMessage());
 
         }catch (\Exception $ex){
-            $this->error($ex->getMessage());
+            //$this->error($ex->getMessage());
             if(!$this->oneMoreLastTime){
                 $this->alert("Reiniciando...");
                 $this->oneMoreLastTime = true;
