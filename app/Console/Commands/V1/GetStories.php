@@ -91,7 +91,7 @@ class GetStories extends Command
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
                 //aguardando 8 min para executar o consumo
-                //sleep(480);
+                sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
