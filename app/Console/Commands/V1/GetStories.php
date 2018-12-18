@@ -91,7 +91,7 @@ class GetStories extends Command
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
                 //aguardando 8 min para executar o consumo
-                sleep(480);
+                //sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
@@ -175,7 +175,7 @@ class GetStories extends Command
                                             );
 
                                         }
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('missaoveja')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -296,7 +296,7 @@ class GetStories extends Command
                     if($cont >= 16){
                         $this->alert("robo correu 15 influenciadores Esperando 5 min para requisitar novamente...");
                         //esperando 5 min para consumir
-                        sleep(300);
+                        //sleep(300);
                         $cont = 0;
                     }
                 }//foreach influencers
