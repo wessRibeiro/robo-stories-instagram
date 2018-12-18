@@ -77,8 +77,9 @@ class GetStories extends Command
                                                 programs
                                               WHERE
                                                 name = 'missaoveja'");
+
             foreach ($programs as $program) {
-                $influencers = DB::select(' SELECT 
+                $influencers = DB::connection('missaoveja')->select(' SELECT 
                                                     * 
                                                   FROM 
                                                     Influencers 
@@ -90,7 +91,7 @@ class GetStories extends Command
                 $this->_progressBar->setMaxSteps(count($influencers));
                 $this->_progressBar->setEmptyBarCharacter(' ');
                 //aguardando 8 min para executar o consumo
-                sleep(480);
+                //sleep(480);
                 $cont = 0;
                 //influenciadores
                 foreach ($influencers as $influencer) {
@@ -106,7 +107,7 @@ class GetStories extends Command
                         #nome
                         if (strrpos($influencer->nome, $responseStories['user']['full_name']) === false) {
                             $this->error('> Nome diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateName = DB::update("UPDATE 
+                            $resultsUpdateName = DB::connection('missaoveja')->update("UPDATE 
                                                                     Influencers                                               
                                                                   SET
                                                                     nome      = '".trim($responseStories['user']['full_name'])."'
@@ -119,7 +120,7 @@ class GetStories extends Command
                         #img perfil
                         if (strrpos($influencer->img, $urlProfilePic) === false) {
                             $this->error('> Imagem de perfil diferente do Instagram, estamos atualizando.');
-                            $resultsUpdateInfluencer = DB::update("UPDATE 
+                            $resultsUpdateInfluencer = DB::connection('missaoveja')->update("UPDATE 
                                                                             Influencers 
                                                                           SET
                                                                             img       = '{$urlProfilePic}'
@@ -135,7 +136,7 @@ class GetStories extends Command
                         $this->info("\n------------------------------------------------\n");
                         foreach ($responseStories['items'] as $story){
                             //verificando se o story ja esta no banco
-                            $resultsInfluencerHasStory = DB::select("SELECT
+                            $resultsInfluencerHasStory = DB::connection('missaoveja')->select("SELECT
                                                                         * 
                                                                      FROM 
                                                                         Historias 
@@ -193,7 +194,7 @@ class GetStories extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('missaoveja')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -236,7 +237,7 @@ class GetStories extends Command
 
                                         }
 
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('missaoveja')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
@@ -256,7 +257,7 @@ class GetStories extends Command
                                                 ]
                                             );
                                     }else{
-                                        $resultsInsertStory = DB::table('Historias')
+                                        $resultsInsertStory = DB::connection('missaoveja')->table('Historias')
                                             ->insert(
                                                 [
                                                     'aplicativo'            => 1,
