@@ -132,6 +132,7 @@ class GetStoriesLouder extends Command
                                                                             instagram = '{$influencer->instagram}' 
                                                                             ");
                                 }
+                                /*
                                 //tratando url
                                 $urlProfilePic = pregString($this->regexStories, $responseStories['user']['profile_pic_url']);
                                 #img perfil
@@ -145,6 +146,7 @@ class GetStoriesLouder extends Command
                                                                                     instagram = '{$influencer->instagram}'                                                  
                                                                                   ");
                                 }
+                                */
 
                                 $this->info("Hashtags do programa: {$program->hashtags}\n");
 
