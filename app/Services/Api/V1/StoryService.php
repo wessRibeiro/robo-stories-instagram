@@ -42,7 +42,7 @@ class StoryService
                                      ->where('Historias.temhashtag', '=', true)
                                      ->where('Historias.aprovado', '=', false)
                                      ->where('Influencers.ativo', '=', true)
-                                     ->limit(100)
+                                     ->limit(50)
                                      ->get();
                                      
         foreach($stories as $story){
