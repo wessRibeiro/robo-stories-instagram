@@ -42,7 +42,7 @@ class StoryService
                                      ->where('Historias.temhashtag', '=', true)
                                      ->where('Historias.aprovado', '=', false)
                                      ->where('Influencers.ativo', '=', true)
-                                     ->limit(100)
+                                     ->limit(1)
                                      ->get();
                                      
         foreach($stories as $story){
@@ -61,6 +61,17 @@ class StoryService
         }
 
         return $dataInfluencerHasStories;
+    }
+
+    public function getTotalStories()
+    {
+        $total = $this->_storyModel->join('Influencers', 'Influencers.id', '=', 'Historias.iduser')
+                                     ->where('Historias.temhashtag', '=', true)
+                                     ->where('Historias.aprovado', '=', false)
+                                     ->where('Influencers.ativo', '=', true)
+                                     ->count();
+
+        return $total;
     }
 
     public function getInfluencers()
