@@ -17,7 +17,6 @@ class Kernel extends ConsoleKernel
         \Louder\Console\Commands\V1\GetStoriesGallo::class,
         \Louder\Console\Commands\V1\GetStoriesNissin::class,
         \Louder\Console\Commands\V1\GetStoriespassionclub::class,
-        \Louder\Console\Commands\V1\GetStoriesFamigliaPregel::class,
         \Louder\Console\Commands\V1\GetStoriesLouder::class,
     ];
 
@@ -29,29 +28,26 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('Instagram:V1.GetStoriesLouder')
+            ->hourly()
+            ->sendOutputTo('/var/www/log/mylouder/louderbase/'.date('(d-m-Y)_as_H_m_s').'_robo_louderbase.log');
+
         $schedule->command('Instagram:V1.GetStories')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('d_m_Y_H_m_s').'_robo_instagram.log');
+                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('(d-m-Y)_as_H_m_s').'_robo_instagram.log');
 
         $schedule->command('Instagram:V1.GetStoriesGallo')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/gallo/'.date('d_m_Y_H_m_s').'_robo_gallo.log');
+                 ->sendOutputTo('/var/www/log/mylouder/gallo/'.date('(d-m-Y)_as_H_m_s').'_robo_gallo.log');
 
         $schedule->command('Instagram:V1.GetStoriesNissin')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/nissin/'.date('d_m_Y_H_m_s').'_robo_nissin.log');
+                 ->sendOutputTo('/var/www/log/mylouder/nissin/'.date('(d-m-Y)_as_H_m_s').'_robo_nissin.log');
 
         $schedule->command('Instagram:V1.GetStoriesPassionclub')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('d_m_Y_H_m_s').'_robo_passionclub.log');
+                 ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('(d-m-Y)_as_H_m_s').'_robo_passionclub.log');
 
-        $schedule->command('Instagram:V1.GetStoriesFamigliaPregel')
-                 ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/pregel/'.date('d_m_Y_H_m_s').'_robo_pregel.log');
-
-        $schedule->command('Instagram:V1.GetStoriesLouder')
-                 ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/louderbase/'.date('d_m_Y_H_m_s').'_robo_louderbase.log');
     }
 
     /**
