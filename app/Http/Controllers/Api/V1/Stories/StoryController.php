@@ -28,7 +28,6 @@ class StoryController extends Controller
             'data'        => $this->_service->index(),
             'influencers' => $this->_service->getInfluencers()
         ];
-        dd($dados);
 
         return response()->json($dados, $dados['code'])->withHeaders([
             'Content-Type'  => 'application/json; charset=utf-8',
