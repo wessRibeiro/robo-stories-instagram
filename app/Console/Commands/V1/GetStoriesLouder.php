@@ -309,6 +309,7 @@ class GetStoriesLouder extends Command
                                 $this->info("\n------------------------------------------------\n");
                                 //avançando barra de status
                                 $this->_progressBar->advance();
+                                $this->info("\n");
 
                             } else {
                                 $this->error('Usuario com visibilidade privada.');
@@ -316,7 +317,7 @@ class GetStoriesLouder extends Command
                             }
                             $cont++;
                             if ($cont >= 16) {
-                                $this->alert("robo correu 15 influenciadores Esperando 5 min para requisitar novamente...");
+                                $this->alert("\nrobo correu 15 influenciadores Esperando 5 min para requisitar novamente...\n");
                                 //esperando 5 min para consumir
                                 sleep(300);
                                 $cont = 0;
@@ -333,12 +334,7 @@ class GetStoriesLouder extends Command
                 }//foreach programs
             //fim goto
         }catch (\GuzzleHttp\Exception\RequestException $ex){
-            $responseStoriesBodyAsString = $ex->getMessage();
-            /*$responseStories = json_decode($responseStoriesBodyAsString);
-            if( is_object($responseStories)) {
-                $responseStories = (array)$responseStories;
-            }*/
-            $this->error($ex->getMessage());
+            $this->error("\n-----------ERROR-------------\n".$ex->getMessage()."\n------------------------\n");
             if(!$this->oneMoreLastTime){
                 $this->alert("Reiniciando...");
                 $this->oneMoreLastTime = true;
@@ -349,10 +345,10 @@ class GetStoriesLouder extends Command
             }
 
         }catch (\Illuminate\Database\QueryException $ex){
-            $this->error($ex->getMessage());
+            $this->error("\n-----------ERROR-------------\n".$ex->getMessage()."\n------------------------\n");
 
         }catch (\Exception $ex){
-            //$this->error($ex->getMessage());
+            $this->error("\n-----------ERROR-------------\n".$ex->getMessage()."\n------------------------\n");
             if(!$this->oneMoreLastTime){
                 $this->alert("Reiniciando...");
                 $this->oneMoreLastTime = true;
