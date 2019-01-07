@@ -30,23 +30,23 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('Instagram:V1.GetStoriesLouder')
             ->hourly()
-            ->sendOutputTo('/var/www/log/mylouder/louderbase/'.date('(d-m-Y)_H_m_s').'_robo_louderbase.log');
+            ->sendOutputTo('/var/www/log/mylouder/louderbase/'.date('(d-m-Y)_H_m_s').'_louderbase.log');
 
         $schedule->command('Instagram:V1.GetStories')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('(d-m-Y)_H_m_s').'_robo_instagram.log');
+                 ->sendOutputTo('/var/www/log/mylouder/instagram/'.date('(d-m-Y)_H_m_s').'_instagram.log');
 
         $schedule->command('Instagram:V1.GetStoriesGallo')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/gallo/'.date('(d-m-Y)_H_m_s').'_robo_gallo.log');
+                 ->sendOutputTo('/var/www/log/mylouder/gallo/'.date('(d-m-Y)_H_m_s').'_gallo.log');
 
         $schedule->command('Instagram:V1.GetStoriesNissin')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/nissin/'.date('(d-m-Y)_H_m_s').'_robo_nissin.log');
+                 ->sendOutputTo('/var/www/log/mylouder/nissin/'.date('(d-m-Y)_H_m_s').'_nissin.log');
 
         $schedule->command('Instagram:V1.GetStoriesPassionclub')
                  ->hourly()
-                 ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('(d-m-Y)_H_m_s').'_robo_passionclub.log');
+                 ->sendOutputTo('/var/www/log/mylouder/passionclub/'.date('(d-m-Y)_H_m_s').'_passionclub.log');
 
     }
 
