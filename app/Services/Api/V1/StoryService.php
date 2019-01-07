@@ -38,26 +38,26 @@ class StoryService
     {
         $dataInfluencerHasStories = [];
 
-        foreach ($this->_influencerModel->where('ativo', true)->limit(20)->get() as $influencer) {
-            foreach ($influencer->stories()->where([
-                                                ['temhashtag', '=', true],
-                                                ['aprovado',   '=', false],
-                                            ])->get()
-                    as $key => $story
-            ) {
-                array_push($dataInfluencerHasStories,
-                    [
-                        'name'              => trim($influencer->nome),
-                        'instagramUser'     => $influencer->instagram,
-                        'pictureProfile'    => $influencer->img,
-                        'urlStory'          => $story->urlimg,
-                        'datePost'          => mysql_br_date_time($story->vinculadoem),
-                        'midiaType'         => $story->midia_type,
-                        'instagramStoryId'  => $story->instagram_story_id,
-                        'is_geral'          => $influencer->is_geral,
-                    ]
-                );
-            }
+        $stories = $this->_storyModel->join('Influencers', 'Influencers.id', '=', 'Historias.iduser')
+                                     ->where('Historias.temhashtag', '=', true)
+                                     ->where('Historias.aprovado', '=', false)
+                                     ->where('Influencers.ativo', '=', true)
+                                     ->limit(20)
+                                     ->get();
+                                     
+        foreach($stories as $story){
+            array_push($dataInfluencerHasStories,
+                [
+                    'name'              => trim($story->nome),
+                    'instagramUser'     => $story->instagram,
+                    'pictureProfile'    => $story->img,
+                    'urlStory'          => $story->urlimg,
+                    'datePost'          => mysql_br_date_time($story->vinculadoem),
+                    'midiaType'         => $story->midia_type,
+                    'instagramStoryId'  => $story->instagram_story_id,
+                    'is_geral'          => $story->is_geral,
+                ]
+            );
         }
 
         return $dataInfluencerHasStories;
