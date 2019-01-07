@@ -38,7 +38,7 @@ class StoryService
     {
         $dataInfluencerHasStories = [];
 
-        foreach ($this->_influencerModel->where('ativo', true)->get() as $influencer) {
+        foreach ($this->_influencerModel->where('ativo', true)->limit(20)->get() as $influencer) {
             foreach ($influencer->stories()->where([
                                                 ['temhashtag', '=', true],
                                                 ['aprovado',   '=', false],
