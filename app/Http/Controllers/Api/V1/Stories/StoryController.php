@@ -26,7 +26,8 @@ class StoryController extends Controller
             'code'        => 200,
             'message'     => 'Ok',
             'data'        => $this->_service->index(),
-            'influencers' => $this->_service->getInfluencers()
+            'influencers' => $this->_service->getInfluencers(),
+            'total'       => $this->_service->getTotalStories()
         ];
 
         return response()->json($dados, $dados['code'])->withHeaders([
