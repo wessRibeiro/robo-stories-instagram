@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('Instagram:V1.GetStoriesLouder')
             ->hourly()
+            ->withoutOverlapping()
             ->sendOutputTo('/var/www/log/mylouder/louderbase/'.date('(d-m-Y)_H_m_s').'_louderbase.log');
     }
 
