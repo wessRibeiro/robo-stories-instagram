@@ -13,10 +13,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \Louder\Console\Commands\V1\GetStories::class,
-        \Louder\Console\Commands\V1\GetStoriesGallo::class,
-        \Louder\Console\Commands\V1\GetStoriesNissin::class,
-        \Louder\Console\Commands\V1\GetStoriespassionclub::class,
         \Louder\Console\Commands\V1\GetStoriesLouder::class,
     ];
 
