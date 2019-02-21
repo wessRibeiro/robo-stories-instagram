@@ -64,20 +64,21 @@ class GetStoriesLouder extends Command
     public function handle()
     {
         try {
-            startGoto:
-                $startProcess  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
-                Log::info($this->signature, ['Inicio' => $startProcess]);
-                $this->info($startProcess."\n");
-                /*
-                 * @TODO relacionar foreach de programas com conexão
-                 * */
-                $programs = DB::select("SELECT
-                                *
-                              FROM
-                                programs
-                             ");
 
-                foreach ($programs as $program) {
+            $startProcess  = 'Cron '.$this->signature.' Iniciada. '.$this->_carbon->format('d/m/Y H:i:s');
+            Log::info($this->signature, ['Inicio' => $startProcess]);
+            $this->info($startProcess."\n");
+            /*
+             * @TODO relacionar foreach de programas com conexão
+             * */
+            $programs = DB::select("SELECT
+                            *
+                          FROM
+                            programs
+                         ");
+
+            startGoto:
+                foreach ($programs as $key => $program) {
 
                     //obtendo configurações do programa
                     $configurations = json_decode($program->configurations);
@@ -318,7 +319,7 @@ class GetStoriesLouder extends Command
                             $cont++;
                             if ($cont >= 16) {
                                 $this->alert("\nrobo correu 15 influenciadores Esperando 5 min para requisitar novamente...\n");
-                                //esperando 5 min para consumir
+                                //esperando 3 min para consumir
                                 sleep(200);
                                 $cont = 0;
                             }
@@ -326,6 +327,9 @@ class GetStoriesLouder extends Command
 
                         //finalizando process bar
                         $this->_progressBar->finish();
+
+                        //removendo programa processado com sucesso para caso der erro a frente não é rodado novamento
+                        unset($programs[$key]);
                     }else{
                         $this->info("> Programa: {$program->name} não é louderbase ou o robo está desativado.");
                         $this->info("\n------------------------------------------------\n");
