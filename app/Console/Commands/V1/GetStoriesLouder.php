@@ -107,8 +107,8 @@ class GetStoriesLouder extends Command
                         if(!$configurations->curatorship->only_with_hashtag){
                             $this->alert("> programa: '{$program->name}', baixa sem hashtag");
                         }
-                        //aguardando 8 min para executar o consumo
-                        sleep(480);
+                        //aguardando 5 min para executar o consumo
+                        sleep(300);
                         $cont = 0;
                         //influenciadores
                         foreach ($influencers as $influencer) {
@@ -319,7 +319,7 @@ class GetStoriesLouder extends Command
                             if ($cont >= 16) {
                                 $this->alert("\nrobo correu 15 influenciadores Esperando 5 min para requisitar novamente...\n");
                                 //esperando 5 min para consumir
-                                sleep(300);
+                                sleep(200);
                                 $cont = 0;
                             }
                         }//foreach influencers
